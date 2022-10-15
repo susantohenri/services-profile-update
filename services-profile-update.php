@@ -4,17 +4,17 @@
  * Services Profile Update
  *
  * @package     ServicesProfileUpdate
- * @author      Henri Susanto
- * @copyright   2022 Henri Susanto
+ * @author      services_profile_update Susanto
+ * @copyright   2022 services_profile_update Susanto
  * @license     GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Services Profile Update
- * Plugin URI:  https://github.com/susantohenri
+ * Plugin URI:  https://github.com/susantoservices_profile_update
  * Description: Update user profile base on formidable form submit
  * Version:     1.0.0
- * Author:      Henri Susanto
- * Author URI:  https://github.com/susantohenri
+ * Author:      services_profile_update Susanto
+ * Author URI:  https://github.com/susantoservices_profile_update
  * Text Domain: ServicesProfileUpdate
  * License:     GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -27,7 +27,7 @@ define('SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT', 'services-profile-update-field
 
 add_action('admin_menu', function () {
     add_menu_page('Services Profile Update', 'Services Profile Update', 'administrator', __FILE__, function () {
-
+        echo parsing_csv();
         if ($_FILES) {
             if ($_FILES[SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT]['tmp_name']) {
                 move_uploaded_file($_FILES[SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT]['tmp_name'], SERVICES_PROFILE_UPDATE_CSV_FILE);
@@ -73,3 +73,52 @@ add_action('admin_menu', function () {
 <?php
     }, '');
 });
+
+add_action('frm_after_create_entry', 'services_profile_update', 30, 2);
+add_action('frm_after_update_entry', 'services_profile_update', 10, 2);
+
+function services_profile_update($entry_id, $form_id)
+{
+    if (!file_exists(SERVICES_PROFILE_UPDATE_CSV_FILE)) return true;
+    $rows = [];
+    if (($open = fopen(SERVICES_PROFILE_UPDATE_CSV_FILE, 'r')) !== FALSE) {
+        while (($data = fgetcsv($open, 100000, ",")) !== FALSE) $rows[] = $data;
+        fclose($open);
+    }
+
+    foreach ($rows as $lineNumber => $columns) {
+        if (0 === $lineNumber) continue; // SKIP TITLE ROW
+
+        $target_field_id = $columns[0];
+        $source_form_id = $columns[1];
+        $source_field_id = $columns[2];
+
+        if ($source_form_id != $form_id) return true;
+        global $wpdb;
+        $query = $wpdb->prepare("
+            UPDATE {$wpdb->prefix}frm_item_metas target_value
+                INNER JOIN {$wpdb->prefix}frm_items target_entry ON target_entry.id = target_value.item_id
+                INNER JOIN {$wpdb->prefix}frm_items source_entry ON source_entry.user_id = target_entry.user_id
+                INNER JOIN {$wpdb->prefix}frm_item_metas source_value ON source_entry.id = source_value.item_id
+            SET target_value.meta_value = source_value.meta_value
+            WHERE target_value.field_id = %d
+                AND source_value.field_id = %d
+                AND source_entry.id = %d
+        ", $target_field_id, $source_field_id, $entry_id);
+        $wpdb->query($query);
+    }
+}
+
+function parsing_csv()
+{
+    if (!file_exists(SERVICES_PROFILE_UPDATE_CSV_FILE)) return true;
+    $rows = [];
+    if (($open = fopen(SERVICES_PROFILE_UPDATE_CSV_FILE, 'r')) !== FALSE) {
+        while (($data = fgetcsv($open, 100000, ",")) !== FALSE) {
+            $rows[] = $data;
+        }
+        fclose($open);
+    }
+    // [["User Profile Field ID","Source Form ID","Source Field ID"],["123","456","789"],["111","222","333"]]
+    return json_encode($rows);
+}
