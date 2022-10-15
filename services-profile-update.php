@@ -85,32 +85,36 @@ function services_profile_update($entry_id, $form_id)
         fclose($open);
     }
 
+    $rows = array_filter($rows, function ($col) use ($form_id) {
+        return $col[2] == $form_id;
+    });
+
     foreach ($rows as $lineNumber => $columns) {
         if (0 === $lineNumber) continue; // SKIP TITLE ROW
 
         $user_profile_form_id = $columns[0];
         $user_profile_field_id = $columns[1];
-        $trigger_form_id = $columns[2];
         $trigger_field_id = $columns[3];
-        $user_id = get_current_user_id();
-
-        if ($trigger_form_id != $form_id) return true;
 
         global $wpdb;
         $prefix = $wpdb->prefix;
 
-        $trigger_value = $wpdb->prepare("
+        // COLLECT TRIGGER DATA
+        $trigger_entry = $wpdb->prepare("
             SELECT
-                answer.meta_value answer_value
+                answer.meta_value answer_value,
+                entry.user_id
             FROM {$prefix}frm_item_metas answer
             LEFT JOIN {$prefix}frm_items entry ON answer.item_id = entry.id
             WHERE TRUE
                 AND entry.id = %d
                 AND answer.field_id = %d
         ", $entry_id, $trigger_field_id);
-        $trigger_value = $wpdb->get_row($trigger_value);
-        $trigger_value = $trigger_value->answer_value;
+        $trigger_entry = $wpdb->get_row($trigger_entry);
+        $user_id = $trigger_entry->user_id;
+        $trigger_entry = $trigger_entry->answer_value;
 
+        // COLLECT PROFILE DATA
         $profile_value = $wpdb->prepare("
             SELECT
                 entry.id entry_id,
@@ -130,12 +134,13 @@ function services_profile_update($entry_id, $form_id)
         ", $user_profile_form_id, $user_profile_field_id, $user_id);
         $profile_value = $wpdb->get_row($profile_value);
 
+        /** APPLY TRIGGER DATA INTO PROFILE DATA **/
         if (is_null($profile_value)) {
-            // user has no profile
+            // USER PROFILE NOT EXISTS, SKIP
         } else if (is_null($profile_value->answer_id)) {
-            // user profile field not answered yet
+            // USER PROFILE FIELD NOT ANSWERED YET, CREATE ANSWER
             $wpdb->insert("{$prefix}frm_item_metas", [
-                'meta_value' => $trigger_value,
+                'meta_value' => $trigger_entry,
                 'field_id' => $user_profile_field_id,
                 'item_id' => $profile_value->entry_id
             ], [
@@ -144,8 +149,9 @@ function services_profile_update($entry_id, $form_id)
                 '%d'
             ]);
         } else {
+            // UPDATE USER PROFILE FIELD ANSWER
             $wpdb->update("{$prefix}frm_item_metas", [
-                'meta_value' => $trigger_value,
+                'meta_value' => $trigger_entry,
             ], [
                 'id' => $profile_value->answer_id
             ], [
