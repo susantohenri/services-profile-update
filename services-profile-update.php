@@ -27,7 +27,6 @@ define('SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT', 'services-profile-update-field
 
 add_action('admin_menu', function () {
     add_menu_page('Services Profile Update', 'Services Profile Update', 'administrator', __FILE__, function () {
-        echo parsing_csv();
         if ($_FILES) {
             if ($_FILES[SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT]['tmp_name']) {
                 move_uploaded_file($_FILES[SERVICES_PROFILE_UPDATE_CSV_FILE_SUBMIT]['tmp_name'], SERVICES_PROFILE_UPDATE_CSV_FILE);
@@ -89,36 +88,71 @@ function services_profile_update($entry_id, $form_id)
     foreach ($rows as $lineNumber => $columns) {
         if (0 === $lineNumber) continue; // SKIP TITLE ROW
 
-        $target_field_id = $columns[0];
-        $source_form_id = $columns[1];
-        $source_field_id = $columns[2];
+        $user_profile_form_id = $columns[0];
+        $user_profile_field_id = $columns[1];
+        $trigger_form_id = $columns[2];
+        $trigger_field_id = $columns[3];
+        $user_id = get_current_user_id();
 
-        if ($source_form_id != $form_id) return true;
+        if ($trigger_form_id != $form_id) return true;
+
         global $wpdb;
-        $query = $wpdb->prepare("
-            UPDATE {$wpdb->prefix}frm_item_metas target_value
-                INNER JOIN {$wpdb->prefix}frm_items target_entry ON target_entry.id = target_value.item_id
-                INNER JOIN {$wpdb->prefix}frm_items source_entry ON source_entry.user_id = target_entry.user_id
-                INNER JOIN {$wpdb->prefix}frm_item_metas source_value ON source_entry.id = source_value.item_id
-            SET target_value.meta_value = source_value.meta_value
-            WHERE target_value.field_id = %d
-                AND source_value.field_id = %d
-                AND source_entry.id = %d
-        ", $target_field_id, $source_field_id, $entry_id);
-        $wpdb->query($query);
-    }
-}
+        $prefix = $wpdb->prefix;
 
-function parsing_csv()
-{
-    if (!file_exists(SERVICES_PROFILE_UPDATE_CSV_FILE)) return true;
-    $rows = [];
-    if (($open = fopen(SERVICES_PROFILE_UPDATE_CSV_FILE, 'r')) !== FALSE) {
-        while (($data = fgetcsv($open, 100000, ",")) !== FALSE) {
-            $rows[] = $data;
+        $trigger_value = $wpdb->prepare("
+            SELECT
+                answer.meta_value answer_value
+            FROM {$prefix}frm_item_metas answer
+            LEFT JOIN {$prefix}frm_items entry ON answer.item_id = entry.id
+            WHERE TRUE
+                AND entry.id = %d
+                AND answer.field_id = %d
+        ", $entry_id, $trigger_field_id);
+        $trigger_value = $wpdb->get_row($trigger_value);
+        $trigger_value = $trigger_value->answer_value;
+
+        $profile_value = $wpdb->prepare("
+            SELECT
+                entry.id entry_id,
+                entry.user_id,
+                answer.id answer_id,
+                answer.meta_value answer_value
+            FROM {$prefix}frm_forms user_profile_form
+            LEFT JOIN {$prefix}frm_items entry ON entry.form_id = user_profile_form.id
+            LEFT JOIN {$prefix}frm_fields user_profile_field ON user_profile_field.form_id = user_profile_form.id
+            LEFT JOIN {$prefix}frm_item_metas answer ON answer.field_id = user_profile_field.id AND answer.item_id = entry.id
+            WHERE TRUE
+                AND user_profile_form.id = %d
+                AND user_profile_field.id = %d
+                AND entry.user_id = %d
+            ORDER BY entry.id DESC
+            LIMIT 1
+        ", $user_profile_form_id, $user_profile_field_id, $user_id);
+        $profile_value = $wpdb->get_row($profile_value);
+
+        if (is_null($profile_value)) {
+            // user has no profile
+        } else if (is_null($profile_value->answer_id)) {
+            // user profile field not answered yet
+            $wpdb->insert("{$prefix}frm_item_metas", [
+                'meta_value' => $trigger_value,
+                'field_id' => $user_profile_field_id,
+                'item_id' => $profile_value->entry_id
+            ], [
+                '%s',
+                '%d',
+                '%d'
+            ]);
+        } else {
+            $wpdb->update("{$prefix}frm_item_metas", [
+                'meta_value' => $trigger_value,
+            ], [
+                'id' => $profile_value->answer_id
+            ], [
+                '%s'
+            ], [
+                '%d'
+            ]);
         }
-        fclose($open);
     }
-    // [["User Profile Field ID","Source Form ID","Source Field ID"],["123","456","789"],["111","222","333"]]
-    return json_encode($rows);
 }
