@@ -1,0 +1,980 @@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/inputmask@4.0.4/dist/inputmask/dependencyLibs/inputmask.dependencyLib.js"></script>
+<script src="https://unpkg.com/inputmask@4.0.4/dist/inputmask/inputmask.js"></script>
+<script src="https://unpkg.com/inputmask@4.0.4/dist/inputmask/inputmask.date.extensions.js"></script>
+<link rel="stylesheet" href="https://use.typekit.net/iqn3anb.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<script src='https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js'></script>
+<script src="https://www.cognitoforms.com/f/iframe.js"></script>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&display=swap');
+
+body {
+    font-family: open-sans-condensed,sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    padding: 25px;
+    background: #f0f0f0;
+}
+
+.entry-content-wrap {
+    background-color: #f0f0f0;
+}
+
+</style>
+
+<script>
+
+//Adding Date picker to the form from bootstrap
+
+let tableRowSize=0;
+$("#businessYear").datepicker({
+format: "yyyy",
+viewMode: "years",
+minViewMode: "years",
+endDate: new Date(),
+});
+
+
+//Function to check for empty cells to disable the download button
+
+function emptyCells() {
+var lengthOfEmptyCells = $("#form-table td:empty").length;
+var ifBizPartnership = $("input[name='item_meta[22]']:checked").val()
+$('#field_9k7n932, input[name="item_meta[22]"], input[name="item_meta[23]"], #field_65gcl32-otext').on("change", function() {
+    var itfValue = $("#field_9k7n932").val();
+    var ifBizPartnership = $("input[name='item_meta[22]']:checked").val();
+    var ifBizHasBBA = $("input[name='item_meta[23]']:checked").val();
+    var bizYearEndOther = $("#field_65gcl32-otext").val();
+    console.log("value of ifBizPartnership: " + ifBizPartnership);
+    console.log("value of itf: " + itfValue);
+    if( (ifBizPartnership == "Yes" || ifBizPartnership == "No" || ifBizPartnership == "Unsure") && ifBizHasBBA == "Yes" ) {
+        console.log("if partnership has value");
+        $("#downloadButton").removeAttr("disabled").removeClass("downloadButtonDisabled");
+    }
+    else if ( bizYearEndOther == "" ){
+        $("#downloadButton").attr("disabled", true).addClass("downloadButtonDisabled");
+        console.log("if partnership has no value");
+    }
+    if ( ifBizHasBBA == "No" ) {
+        console.log("i'm logging that ifBBA is No")
+        $("div#frm_field_83_container").css("display","none !important")
+    }
+})  
+console.log("length of empty cells: " + lengthOfEmptyCells);  
+if (lengthOfEmptyCells != 0) {
+    console.log("empty cells are present");
+    $("#downloadButton").attr("disabled", true).addClass("downloadButtonDisabled");
+} else {
+    $("#downloadButton").removeAttr("disabled").removeClass("downloadButtonDisabled");
+    console.log("there are no empty cells");
+}
+}
+
+//Function to export Form Data into an Excel file
+
+// function ExportToExcel(type, fn, dl) {
+// var elt = document.getElementById("body-table");
+// var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+// return dl
+//     ? XLSX.write(wb, { bookType: type, bookSST: true, type: "base64" })
+//     : XLSX.writeFile(wb, fn || "MySheetName." + (type || "xlsx"));
+// }
+
+//Function to export Form Data into an Excel file
+
+// function displayIframe() {
+//         document.getElementById("iframeDisplay").innerHTML = "<iframe src="https://www.cognitoforms.com/f/bv8jNS8sLE2QCnfn17sVjA/8" style="border:0;width:100%;" height="411"></iframe>";
+//     }
+
+function modaldisp(){
+    document.getElementById("popupdarkbg").style.display = "block";
+    document.getElementById("popup").style.display = "block";
+    document.getElementById('popupiframe').src = "https://www.cognitoforms.com/f/bv8jNS8sLE2QCnfn17sVjA/8";
+    document.getElementById('popupdarkbg').onclick = function() {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("popupdarkbg").style.display = "none";
+    };
+    return false;
+}
+  
+  window.onkeydown = function(e) {
+      if (e.keyCode == 27) {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("popupdarkbg").style.display = "none";
+        e.preventDefault();
+        return;
+      }
+  }
+
+let button = document.querySelector("#downloadButton");
+
+button.addEventListener("click", e => {
+    TableToExcel.convert(document.getElementById("body-table"), {
+    name: "Rbundle - RFP - Tax - Federal - IRS Audit Monitoring.xlsx",
+    sheet: {
+        name: "Sheet 1"
+    }
+    });
+});
+
+
+//Function to save form fields in a text file.
+
+
+function saveFormAsTextFile() {
+
+//   console.log("i've been clicked")
+
+    var fieldsToSave =
+        $("input[name='item_meta[19]']:checked").val() /*data[0]*/ +
+        "n" + 
+        $("#field_9k7n932").val() /*data[1]*/+
+        "n" +
+        $("#field_65gcl32").val() /*data[2]*/ +
+        "n" +
+        $("#field_65gcl32-otext").val() /*data[3]*/+
+        "n" +
+        $("input[name='item_meta[22]']:checked").val() /*data[4]*/+
+        "n" +
+        $("input[name='item_meta[23]']:checked").val() /*data[5]*/ +
+        "n" +
+        $("input[name='item_meta[25]']:checked").val() /*data[6]*/ +
+        "n" +
+        $("input[name='item_meta[27]']:checked").val() /*data[7]*/ +
+        "n" +
+        $("#businessYear").val() /*data[8]*/ +
+        "n" +
+        $("#field_takku32").val() /*data[9]*/ +
+        "n" +
+        $("input[name='item_meta[30]']:checked").val() /*data[10]*/ +
+        "n" +
+        $("#optProviderNotes").val() /*data[11]*/ ;
+
+
+    console.log("i've LOGGED values: "+fieldsToSave)
+    var fieldsToSaveAsBlob = new Blob([fieldsToSave], {
+        type: "text/plain",
+    });
+    var fieldsToSaveAsURL = window.URL.createObjectURL(fieldsToSaveAsBlob);
+    var fileNameToSaveAs = "Form progress";
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    downloadLink.href = fieldsToSaveAsURL;
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    
+    downloadLink.click();
+    }
+
+function destroyClickedElement(event) {
+document.body.removeChild(event.target);
+}
+
+(function() {
+var input = document.getElementById("fileinput");
+input.addEventListener("change", loadFile, false);
+
+function loadFile() {
+    var file, fr;
+
+    if (typeof window.FileReader !== 'function') {
+    alert("The file API isn't supported on this browser yet.");
+    return;
+    }
+
+    if (!input.files) {
+    alert("This browser doesn't seem to support the `files` property of file inputs.");
+    } else if (!input.files[0]) {
+    alert("Please select a file before clicking 'Load'");
+    } else {
+    file = input.files[0];
+    fr = new FileReader();
+    fr.onload = receivedText;
+    fr.readAsText(file);
+    }
+
+    function receivedText() {
+
+    //beginning of writing values to the saved file
+
+
+    var data = fr.result.split('n');
+    
+    if(data[0] == "Yes") {
+        $('#field_awpuv32-0').prop('checked',true);
+    } else if (data[0] == "No") {
+        $('#field_awpuv32-1').prop('checked',true);
+    }
+
+    document.getElementById("field_9k7n932").value = data[1];
+
+    document.getElementById("field_65gcl32").value = data[2];
+
+    document.getElementById("field_65gcl32-otext").value = data[3];
+
+    if(data[4] == "Yes") {
+        $('#field_lgbv12-0').prop('checked',true);
+    } else if (data[4] == "No") {
+        $('#field_lgbv12-1').prop('checked',true);
+    } else if (data[4] == "Unsure") {
+        $('#field_lgbv12-2').prop('checked',true);
+    }
+
+    if(data[5] == "Yes") {
+        $('#field_cdd342-0').prop('checked',true);
+    } else if (data[5] == "No") {
+        $('#field_cdd342-1').prop('checked',true);
+    }
+
+    if(data[6] == "Yes") {
+        $('#field_eopag32-0').prop('checked',true);
+    } else if (data[6] == "No") {
+        $('#field_eopag32-1').prop('checked',true);
+    }
+
+    if(data[7] == "Yes") {
+        $('#field_30zjt32-0').prop('checked',true);
+    } else if (data[7] == "No") {
+        $('#field_30zjt32-1').prop('checked',true);
+    }
+
+    document.getElementById("businessYear").value = data[8];
+
+    document.getElementById("field_takku32").value = data[9];
+    
+    if(data[10] == "Yes") {
+        $('#field_d87io32-0').prop('checked',true);
+    } else if (data[10] == "No") {
+        $('#field_d87io32-1').prop('checked',true);
+    }
+
+    document.getElementById("optProviderNotes").value = data[11];
+    
+
+    //end of writing values to the save file
+
+
+    if((data[0].length != 0) && (data[1].length != 0) && (data[2].length != 0) && (data[3].length != 0) && (data[4].length != 0) && (data[5].length != 0) && (data[6].length != 0) && (data[7].length != 0) && (data[8].length != 0) && (data[9].length != 0) && (data[10].length != 0)) {
+        console.log("Saved file has all inputs");
+        
+    } else {
+        console.log("Saved file is missing inputs");
+    }
+
+
+    var emptyCount = 0;
+    var notEmptyCount = 0;
+    for(var i = 0; i<=11; i++) {
+        if( (data[i] == "undefined") || (data[i] == "null") || (data[i] == "")) {     
+        emptyCount++;
+    }
+        else if( (data[i] != "undefined") || (data[i] != "null") || (data[i] != "")) {
+        notEmptyCount++;
+        console.log("question "+i+" has an answer: "+data[i])
+        }
+    }
+    console.log("not empty count: "+notEmptyCount)
+    console.log("empty count :"+emptyCount)
+
+
+    if ( !!data[0] && ( data[1] != "1065" && !!data[1] ) && ( data[2] != "Other" && data[2] != "") && !!data[6] && !!data[7] && !!data[8] && !!data[9] && (data[10] != "undefined") ) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_30_container").css("display","inline-block"); //question[1]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log(" 1st Edge Case First condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && !!data[2] && !!data[6] && !!data[7] && !!data[8] && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_30_container").css("display","inline-block");
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("1st Edge Case Second condition is applied, showing 8 questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && !!data[2] && !!data[6] && !!data[7] && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[1]
+        console.log("1st Edge Case Third condition is applied, showing 6 questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] != "Other" && !!data[2]) && !!data[6] && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"});
+        console.log("1st Edge Case Fourth condition is applied, showing 5 questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] != "Other" && !!data[2]) && (data[6] == "No") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_26_container").css("display","block");//warning
+        //$("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); question[1]
+        console.log("1st Edge Case ProblemFifth condition is applied, showing 4 questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] != "Other" && !!data[2]) && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        console.log("1st Edge Case Fifth condition is applied, showing 4 questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] != "null" && data[2] != "Other" && !!data[2]) && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_25_container").css("display","inline-block"); //question[1]
+        console.log("1st Edge Case Sixth condition is applied, showing 3 questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        console.log("1st Edge Case Seventh condition is applied, showing 2 questions")
+    } else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("2nd Edge case First condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    } else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("2nd Edge case NewFirst condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        console.log("2nd Edge case NewSecond condition is applied, showing 9 questions")
+     } else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        console.log("2nd Edge case Second condition is applied, showing 9 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9] //question[10]
+        console.log("2nd Edge case NewThird condition is applied, showing 8 questions")
+     } else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9] //question[10]
+        console.log("2nd Edge case Third condition is applied, showing 8 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        console.log("2nd Edge case Newfourth condition is applied, showing 7 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        console.log("2nd Edge case fourth condition is applied, showing 7 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        console.log("2nd Edge case fifth condition is applied, showing 6 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        console.log("2nd Edge case Newfifth condition is applied, showing 6 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("2nd Edge case sixth condition is applied, showing 5 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("2nd Edge case Newsixth condition is applied, showing 5 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("2nd Edge case seventh condition is applied, showing 3 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        console.log("2nd Edge case eight condition is applied, showing 5 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "null" && data[2] != "Other") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        console.log("2nd Edge case ninth condition is applied, showing 5 questions")
+     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "null" && data[2] != "Other") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        console.log("2nd Edge case tenth condition is applied, showing 5 questions")
+     }
+     else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("3rd Edge case First condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("3rd Edge case NewFirst condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        console.log("3rd Edge case Second condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        console.log("3rd Edge case NewSecond condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        console.log("3rd Edge case third condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        console.log("3rd Edge case Newthird condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        console.log("3rd Edge case fourth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        console.log("3rd Edge case Newfourth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        console.log("3rd Edge case fifth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        console.log("3rd Edge case Newfifth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("3rd Edge case sixth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("3rd Edge case Newsixth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
+        console.log("3rd Edge case seventh condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
+        console.log("3rd Edge case eight condition is applied, showing all questions")
+    } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
+        console.log("4th Edge case First condition is applied, showing all questions")
+        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        $("#frm_field_30_container").css("display","inline-block"); //question[10]
+        console.log("4th Edge case Second condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        $("#frm_field_29_container").css({"visibility":"visible","height":"auto","display":"flex","flex-direction":"column"}); //question[9]
+        console.log("4th Edge case Third condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined" && !!data[6] ) && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
+        console.log("4th Edge case Fifth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
+        console.log("4th Edge case sixth condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#frm_field_25_container").css("display","inline-block"); //question[6]
+        console.log("4th Edge case seventh condition is applied, showing all questions")
+    }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2]=="null") && (data[3] == "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
+        $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
+        $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
+        console.log("4th Edge case eight condition is applied, showing all questions")
+    }
+
+}
+    }
+})();
+
+function RemoveMe(object) {
+$(object).parents("tr").remove();
+renumberRows();
+tableRowSize--;
+console.log("tableRowSize on delete: " + tableRowSize);
+emptyCells();
+}
+
+function addTableRow(object) {
+var addRowAppend =
+    "<tr><td id='addRowTd'><input type='button' id='addRow' value='+' onClick='addTableRow(this)'/></td><td id='currentYear'></td>Current Year - <td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td id='removeRowTd'><i class='fa-solid fa-trash' onclick='RemoveMe(this)'></i></td></tr>";
+$(object).parents("tr").after(addRowAppend);
+tableRowSize++;
+//   console.log("add row function is running");
+//   console.log("tableRowSize on add: " + tableRowSize);
+renumberRows();
+emptyCells();
+}
+
+function renumberRows() {
+$("table#form-table tbody tr").each(function (index) {
+    $(this)
+    .children("#currentYear")
+    .text("Current Year - " + (index));
+    // console.log("renumber is running!");
+});
+}
+
+function tdCheck(check) {
+var tdData = check.innerHTML;
+console.log("value of num is: " + tdData);
+console.log("length of td: " + tdData.length);
+if (tdData.length > 0) {
+    // console.log("td is not empty");
+    emptyCells();
+} else {
+    emptyCells();
+    // console.log("td is empty");
+}
+}
+
+
+// $(".frm_fields_container").css("display","none !important")
+
+
+$(document).ready(function($){
+
+// const myTimeout = setTimeout(loadFormFields, 36);
+
+// function loadFormFields() {
+//   $("#frm_form_3_container").css("visibility","visible");
+//   console.log("I've been logged after 0.036 seconds")
+// }
+
+$( "#requestButton" ).click(function() {     
+   $('#iframe-container').slideToggle( "slow" );
+   console.log("the value of the button is:"+$("#requestButton").html())
+   if ($("#requestButton").html() == "Request Proposals") {
+     $("#requestButton").html("Close");
+   }
+   else {
+     $("#requestButton").html("Request Proposals");
+   }
+});
+
+// $(".frm_fields_container").css("display","block")
+
+// $('form').submit(false);
+
+// $("#form_irsauditmonitoring32").addClass("form-anticlear");
+
+$("#form_irsauditmonitoring32").submit(function(event){
+   event.preventDefault()
+})
+
+console.log("document loaded")
+
+$( "#tooltip_1, #tooltip_2, #tooltip_3, #tooltip_4, #tooltip_5, #tooltip_6, #tooltip_7, #tooltip_8, #tooltip_9, #tooltip_10, #tooltip_11" ).tooltip({
+    position: { my: "left+15 center", at: "right center" }
+});
+
+//Writing jQuery for final dynamic question that pulls in legalEntity, federalIncomeTaxForm, businessYearEnd and businessYear
+
+Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_65gcl32-otext");
+
+businessYear
+
+Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_65gcl32-otext");
+
+
+// $(".frm_submit").css("display", "none");
+
+$('input[name="item_meta[19]"], #field_9k7n932, #field_65gcl32, #field_65gcl32-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #businessYear, #field_takku32, input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
+    var qa_table = $("#Q_A tbody");
+    var answer_q1 = $("input[name='item_meta[19]']:checked").val();
+    var answer_q2= $("#field_9k7n932").val();
+    var answer_q3= $("#field_65gcl32").val();
+    var answer_q4= $("#field_65gcl32-otext").val();
+    var answer_q5= $("input[name='item_meta[22]']:checked").val();
+    var answer_q6= $("input[name='item_meta[23]']:checked").val();
+    var answer_q7= $("input[name='item_meta[25]']:checked").val();
+    var answer_q8= $("input[name='item_meta[27]']:checked").val();
+    var answer_q9= $("#businessYear").val();
+    var answer_q10= $("#field_takku32").val();
+    var answer_q11= $("input[name='item_meta[30]']:checked").val();
+    var answer_q12= $("#optProviderNotes").val();
+    var state = $('#rfp-iframe').contents().find('#cog-1').val();
+    if(!!state){
+        alert(state);
+    }
+    else{
+        console.log("no value entered");
+    }
+
+    if( answer_q2 == "1065" && answer_q3 != "Other") {
+        var q_and_a_table_append = "<tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>RBUNDLE RFP FORM</td></tr><tr><td></td></tr><tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>Tax – IRS Monitoring</td></tr><tr><td></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does or should the business file income taxes in the U.S.?</th></tr><br><tr><td data-a-h='left' data-f-sz='16'>"+answer_q1+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What Federal Income Tax Form does the business file?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q2+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What is the business' year end?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q3+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>If the business files as a Partnership, is the business currently subject to the BBA Centralized Partnership Audit Regime?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q5+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>If subject to the BBA, is the business able to provide the name of the company's Partnership Representative?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q6+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Can the business provide the business's EIN, Company Name, and Company Address?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q7+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does the business also want its records searched for Penalty Abatement Opportunities?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q8+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What year was the business formed?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q9+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What kind of legal entity is the business?</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q10+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Has the business always been a "+answer_q10+" filing a "+answer_q2+" with a tax year end of "+answer_q3+" </th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q11+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Additional Info</th></tr><tr><td data-a-h='left' data-f-sz='16'>"+answer_q12+"</td></tr><tr><td><br></td></tr>"
+    } else if ( answer_q2 != "1065" && answer_q3 != "Other") {
+        var q_and_a_table_append = "<tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>RBUNDLE RFP FORM</td></tr><tr><td></td></tr><tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>Tax – IRS Monitoring</td></tr><tr><td></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does or should the business file income taxes in the U.S.?</th></tr><tr><td data-f-sz='16'>"+answer_q1+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What Federal Income Tax Form does the business file?</th></tr><tr><td data-f-sz='16'>"+answer_q2+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What is the business' year end?</th></tr><tr><td data-f-sz='16'>"+answer_q3+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Can the business provide the business's EIN, Company Name, and Company Address?</th></tr><tr><td data-f-sz='16'>"+answer_q7+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does the business also want its records searched for Penalty Abatement Opportunities?</th></tr><tr><td data-f-sz='16'>"+answer_q8+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What year was the business formed?</th></tr><tr><td data-f-sz='16'>"+answer_q9+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What kind of legal entity is the business?</th></tr><tr><td data-f-sz='16'>"+answer_q10+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Has the business always been a "+answer_q10+" filing a "+answer_q2+" with a tax year end of "+answer_q3+" </th></tr><tr><td data-f-sz='16'>"+answer_q11+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Additional Info</th></tr><tr><td data-f-sz='16'>"+answer_q12+"</td></tr><tr><td><br></td></tr>"
+        
+    } else if ( answer_q2 != "1065" && answer_q3 == "Other") {
+        var q_and_a_table_append = "<tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>RBUNDLE RFP FORM</td></tr><tr><td></td></tr><tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>Tax – IRS Monitoring</td></tr><tr><td></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does or should the business file income taxes in the U.S.?</th></tr><tr><td data-f-sz='16'>"+answer_q1+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What Federal Income Tax Form does the business file?</th></tr><tr><td data-f-sz='16'>"+answer_q2+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What is the business' year end?</th></tr><tr><td data-f-sz='16'>"+answer_q4+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Can the business provide the business's EIN, Company Name, and Company Address?</th></tr><tr><td data-f-sz='16'>"+answer_q7+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does the business also want its records searched for Penalty Abatement Opportunities?</th></tr><tr><td data-f-sz='16'>"+answer_q8+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What year was the business formed?</th></tr><tr><td data-f-sz='16'>"+answer_q9+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What kind of legal entity is the business?</th></tr><tr><td data-f-sz='16'>"+answer_q10+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Has the business always been a "+answer_q10+" filing a "+answer_q2+" with a tax year end of "+answer_q3+" </th></tr><tr><td data-f-sz='16'>"+answer_q11+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Additional Info</th></tr><tr><td data-f-sz='16'>"+answer_q12+"</td></tr><tr><td><br></td></tr>"
+    } else if( answer_q2 == "1065" && answer_q3 == "Other") {
+        var q_and_a_table_append = "<tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>RBUNDLE RFP FORM</td></tr><tr><td></td></tr><tr><td colspan='15' data-f-bold='true' data-f-italic='true' data-f-sz='28'>Tax – IRS Monitoring</td></tr><tr><td></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does or should the business file income taxes in the U.S.?</th></tr><tr><td data-f-sz='16'>"+answer_q1+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What Federal Income Tax Form does the business file?</th></tr><tr><td data-f-sz='16'>"+answer_q2+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What is the business' year end?</th></tr><tr><td data-f-sz='16'>"+answer_q4+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>If the business files as a Partnership, is the business currently subject to the BBA Centralized Partnership Audit Regime?</th></tr><tr><td data-f-sz='16'>"+answer_q5+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>If subject to the BBA, is the business able to provide the name of the company's Partnership Representative?</th></tr><tr><td data-f-sz='16'>"+answer_q6+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Can the business provide the business's EIN, Company Name, and Company Address?</th></tr><tr><td data-f-sz='16'>"+answer_q7+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Does the business also want its records searched for Penalty Abatement Opportunities?</th></tr><tr><td data-f-sz='16'>"+answer_q8+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What year was the business formed?</th></tr><tr><td data-f-sz='16'>"+answer_q9+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>What kind of legal entity is the business?</th></tr><tr><td data-f-sz='16'>"+answer_q10+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Has the business always been a "+answer_q10+" filing a "+answer_q2+" with a tax year end of "+answer_q3+" </th></tr><tr><td data-f-sz='16'>"+answer_q11+"</td></tr><tr><td><br></td></tr><tr><th data-f-bold='true' data-f-sz='18'>Additional Info</th></tr><tr><td data-f-sz='16'>"+answer_q12+"</td></tr><tr><td><br></td></tr>"
+    }
+    qa_table.html(q_and_a_table_append);
+});
+
+$('#field_9k7n932, #field_65gcl32, #field_65gcl32-otext, #field_65gcl32-otext, #businessYear, #field_takku32, input[name="item_meta[30]"]').on("change",function() {
+
+var legalEntity = $("#field_takku32").val();
+var federalIncomeTaxForm = $("#field_9k7n932").val();
+var businessYearEnd = $("#field_65gcl32").val();
+var businessYearEndOther = $("#field_65gcl32-otext").val();
+var businessYear = $("#businessYear").val();
+var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();
+var table = $("#form-table tbody");
+const d = new Date();
+let year = d.getFullYear();
+var rowFinalNum = year - businessYear;
+var resultHtml = "";
+    //Loop.1 : loop to write the dynamic question to "#output"
+    if ( businessYearEndOther != null && businessYearEnd == 'Other') {
+        document.getElementById("output").innerHTML = "Has the business always been a " + legalEntity + " filing a " + federalIncomeTaxForm + " with a tax year end of " + businessYearEndOther;
+        // console.log(" businessYearEndOther it has value: " +businessYearEndOther)
+    }
+    else {
+        document.getElementById("output").innerHTML = "Has the business always been a " + legalEntity + " filing a " + federalIncomeTaxForm + " with a tax year end of " + businessYearEnd;
+        // console.log("businessYearEndOther it has no value: " +businessYearEnd)
+    }
+    //end of Loop.1
+//start of the dynamic table
+
+if ( !!businessYear && (!!businessYearEnd || !!businessYearEndOther) && !!legalEntity && !!federalIncomeTaxForm && (rowFinalNum <= 122) && (lastDynamicQuestion == "Yes" || lastDynamicQuestion == "No") ) {
+    $("#frm_field_83_container").css("display","block");
+    for (var i = 1; i <= rowFinalNum + 1; i++) {
+        if( businessYearEnd == "12/31" || businessYearEnd == "06/30" || businessYearEnd == "01/31" || businessYearEnd == "03/31" || businessYearEnd == "09/30") {
+            var businessDayMonth = businessYearEnd;
+        } else if (!!businessYearEnd && !!businessYearEndOther){ 
+            var businessDayMonth = businessYearEndOther;
+        }
+        if( federalIncomeTaxForm == "1065" ){
+            subjectToBBA = 'Yes'
+        } else {
+            subjectToBBA = 'N/A'
+        }
+        var businessYearLoop = year;
+        tableRowSize++;
+        // console.log("tableRowSize: "+tableRowSize);
+        // console.log(businessYearEnd + "/" + businessYear + " " + federalIncomeTaxForm + " " + legalEntity);
+        resultHtml +=
+        "<tr id='table' ><td id='addRowTd'><input type='button' id='addRow' value='+' onClick='addTableRow(this)'/></td><td id='currentYear'>Current year - "+(i-1)+"</td><td contenteditable onkeyup='tdCheck(this)'>"+businessDayMonth+"/"+year+"</td><td contenteditable onkeyup='tdCheck(this)'>"+federalIncomeTaxForm +"</td></td><td contenteditable onkeyup='tdCheck(this)'>"+legalEntity+"</td><td contenteditable onkeyup='tdCheck(this)'>"+subjectToBBA+"</td><td id='removeRowTd'><i class='fa-solid fa-trash' onclick='RemoveMe(this)'></i></td></tr>"
+        year--;
+        console.log("inside the table builder loop")
+        emptyCells();
+    }
+} 
+else {
+    emptyCells();
+    $("#frm_field_83_container").css("display","none");
+    console.log("skipped the main loop to generate table");
+}
+    table.html(resultHtml);
+    return true;
+    });
+});
+
+
+$('#field_9k7n932, #field_65gcl32, #field_65gcl32-otext, input[name="item_meta[22]"], input[name="item_meta[23]"],input[name="item_meta[25]"], #businessYear').on("change", function(){
+
+var businessYear = $("#businessYear").val();
+var itfValue = $("#field_9k7n932").val();
+var businessYearEnd = $("#field_65gcl32").val();
+var businessYearEndOther = $("#field_65gcl32-otext").val();
+var isSubjectToBBA = $("input[name='item_meta[23]']:checked").val();
+var isSubjectPartnerShip = $("input[name='item_meta[22]']:checked").val();
+var canBusinessProvide = $("input[name='item_meta[25]']:checked").val();
+console.log("jo2 trying to disable if bba"+isSubjectToBBA);
+console.log("trying to disable year"+canBusinessProvide);
+
+if (itfValue == "1065") {
+    $("#frm_field_25_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_27_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_28_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_29_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_30_container").css({"visibility":"hidden","height":"0"});
+    // console.log("hiding the can your business question 1st")
+
+    if(isSubjectPartnerShip=="Yes" && isSubjectToBBA=="No"){
+       // $("#frm_field_26_container").css("display","none");warning
+       $("div#frm_field_26_container").css("display","none");
+        console.log("jo3 trying to disable if bba"+isSubjectToBBA);
+    }
+    if(isSubjectPartnerShip=="Yes" && isSubjectToBBA=="Yes" && canBusinessProvide=="No"){
+       $("div#frm_field_26_container").css("display","block");
+    }
+    if(canBusinessProvide=="No"){
+        document.getElementById("businessYear").value="";
+    }
+    if((isSubjectPartnerShip == "No")&&( isSubjectPartnerShip != "")){
+    $("#frm_field_25_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_27_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_28_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_29_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_30_container").css({"visibility":"visible","height":"auto"});
+    }
+    if(( isSubjectPartnerShip == "" || isSubjectPartnerShip == "No") && isSubjectToBBA == "No") {
+    $("#frm_field_25_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_27_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_28_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_29_container").css({"visibility":"hidden","height":"0"});
+    $("#frm_field_30_container").css({"visibility":"hidden","height":"0"});
+    // console.log("hiding the can your business question 2nd")
+    // console.log("itf is 1065: " )
+    // console.log(isSubjectToBBA)
+    }
+    else if ((isSubjectPartnerShip == "Yes" || isSubjectPartnerShip == "Unsure") && isSubjectToBBA == "Yes") {
+    $("#frm_field_25_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_27_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_28_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_29_container").css({"visibility":"visible","height":"auto"});
+    $("#frm_field_30_container").css({"visibility":"visible","height":"auto"});
+    // console.log("showing the can your business question")
+    // console.log("itf is :" + itfValue)
+}
+}
+else {
+    $("#frm_field_25_container").css({"visibility":"visible","height":"auto"});
+    if(canBusinessProvide=="No"){
+        document.getElementById("businessYear").value="";
+    }else if(canBusinessProvide=="Yes"){
+        $("#frm_field_26_container").css("display","none");//warning
+    }
+}
+
+//-----------------//
+var showBusinessYear;
+var val1 = $("#businessYear").val();
+if (val1 == "") {
+    showBusinessYear = false;
+    console.log("business year is empty: " )
+}
+else {
+    showBusinessYear = true;
+    console.log("business year is not empty :" + val1)
+}
+
+if(showBusinessYear){
+    $("#frm_field_29_container").css({"display":"flex","flex-direction":"column","visibility":"visible","height":"auto"});
+}else{
+    $("#frm_field_29_container").css({"visibility":"hidden","height":"0"});
+}
+
+
+//--------------------//
+
+// if ( businessYearEnd == "Other" && businessYearEndOther == "" ) {
+//   console.log("business year end other is empty")
+//   $("#frm_field_83_container").css({"display":"none"});
+// }
+// else if ( businessYearEnd == "Other" && !!businessYearEndOther ) {
+//   console.log("business year end other is not empty")
+//   $("#frm_field_83_container").css({"display":"block"});
+// }
+
+// console.log("testing testing")
+
+
+
+});
+
+</script>
