@@ -815,14 +815,19 @@ $('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #
     qa_table.html(q_and_a_table_append);
 });
 
-$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, #field_'+year_end+'-otext, #field_'+business_formed+', #field_'+entity_business+', input[name="item_meta[30]"]').on("change",function() {
+$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, #field_'+year_end+'-otext, #field_'+business_formed+', #field_'+entity_business+', #field_'+has_the_business_always+'-0, #field_'+has_the_business_always+'-1').on("change",function() {
 
 var legalEntity = $("#field_"+entity_business).val();
 var federalIncomeTaxForm = $("#field_"+business_file).val();
 var businessYearEnd = $("#field_"+year_end).val();
 var businessYearEndOther = $("#field_"+year_end+"-otext").val();
 var businessYear = $("#field_" + business_formed).val();
-var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();
+
+// var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();// henri
+var lastDynamicQuestion = undefined;
+if (undefined == lastDynamicQuestion) lastDynamicQuestion = $(`#field_${has_the_business_always}-0:checked`).val()
+if (undefined == lastDynamicQuestion) lastDynamicQuestion = $(`#field_${has_the_business_always}-1:checked`).val()
+
 var table = $("#form-table tbody");
 const d = new Date();
 let year = d.getFullYear();
@@ -839,7 +844,6 @@ var resultHtml = "";
     }
     //end of Loop.1
 //start of the dynamic table
-
 if ( !!businessYear && (!!businessYearEnd || !!businessYearEndOther) && !!legalEntity && !!federalIncomeTaxForm && (rowFinalNum <= 122) && (lastDynamicQuestion == "Yes" || lastDynamicQuestion == "No") ) {
     $("#frm_field_83_container").css("display","block");
     for (var i = 1; i <= rowFinalNum + 1; i++) {
