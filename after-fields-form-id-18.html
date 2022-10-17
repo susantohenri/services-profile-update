@@ -123,7 +123,7 @@ function modaldisp(){
 
 let button = document.querySelector("#downloadButton");
 
-button.addEventListener("click", e => {
+if (button) button.addEventListener("click", e => {
     TableToExcel.convert(document.getElementById("body-table"), {
     name: "Rbundle - RFP - Tax - Federal - IRS Audit Monitoring.xlsx",
     sheet: {
@@ -189,7 +189,7 @@ document.body.removeChild(event.target);
 
 (function() {
 var input = document.getElementById("fileinput");
-input.addEventListener("change", loadFile, false);
+if (input) input.addEventListener("change", loadFile, false);
 
 function loadFile() {
     var file, fr;
