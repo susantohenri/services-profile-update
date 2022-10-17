@@ -808,7 +808,7 @@ $('input[name="item_meta[19]"], #field_9k7n932, #field_65gcl32, #field_65gcl32-o
     qa_table.html(q_and_a_table_append);
 });
 
-$('#field_9k7n932, #field_65gcl32, #field_65gcl32-otext, #field_65gcl32-otext, #businessYear, #field_takku32, input[name="item_meta[30]"]').on("change",function() {
+$('#field_lgbv12-0, #field_lgbv12-1, #field_lgbv12-2, #field_9k7n932, #field_65gcl32, #field_65gcl32-otext, #field_65gcl32-otext, #businessYear, #field_takku32, input[name="item_meta[30]"]').on("change",function() {
 
 var legalEntity = $("#field_takku32").val();
 var federalIncomeTaxForm = $("#field_9k7n932").val();
@@ -842,7 +842,10 @@ if ( !!businessYear && (!!businessYearEnd || !!businessYearEndOther) && !!legalE
             var businessDayMonth = businessYearEndOther;
         }
         if( federalIncomeTaxForm == "1065" ){
-            subjectToBBA = 'Yes'
+            if ($('#field_lgbv12-0').prop('checked')) subjectToBBA = 'Yes';
+            else if ($('#field_lgbv12-1').prop('checked')) subjectToBBA = 'No';
+            else if ($('#field_lgbv12-2').prop('checked')) subjectToBBA = 'Unsure';
+            else subjectToBBA = 'N/A';
         } else {
             subjectToBBA = 'N/A'
         }
