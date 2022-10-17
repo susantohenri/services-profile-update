@@ -39,6 +39,7 @@ var abatement_opportunities = '30zjt35';
 var business_formed = 'gm2gs';
 var entity_business = 'takku36';
 var has_the_business_always = 'd87io36';
+var audit_regime = 'lgbv16';
 //Adding Date picker to the form from bootstrap
 
 let tableRowSize=0;
@@ -230,11 +231,11 @@ function loadFile() {
     document.getElementById("field_"+year_end+"-otext").value = data[3];
 
     if(data[4] == "Yes") {
-        $('#field_lgbv12-0').prop('checked',true);
+        $('#field_'+audit_regime+'-0').prop('checked',true);
     } else if (data[4] == "No") {
-        $('#field_lgbv12-1').prop('checked',true);
+        $('#field_'+audit_regime+'-1').prop('checked',true);
     } else if (data[4] == "Unsure") {
-        $('#field_lgbv12-2').prop('checked',true);
+        $('#field_'+audit_regime+'-2').prop('checked',true);
     }
 
     if(data[5] == "Yes") {
@@ -823,7 +824,7 @@ var businessYearEnd = $("#field_"+year_end).val();
 var businessYearEndOther = $("#field_"+year_end+"-otext").val();
 var businessYear = $("#field_" + business_formed).val();
 
-// var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();// henri
+// var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();
 var lastDynamicQuestion = undefined;
 if (undefined == lastDynamicQuestion) lastDynamicQuestion = $(`#field_${has_the_business_always}-0:checked`).val()
 if (undefined == lastDynamicQuestion) lastDynamicQuestion = $(`#field_${has_the_business_always}-1:checked`).val()
@@ -853,7 +854,10 @@ if ( !!businessYear && (!!businessYearEnd || !!businessYearEndOther) && !!legalE
             var businessDayMonth = businessYearEndOther;
         }
         if( federalIncomeTaxForm == "1065" ){
-            subjectToBBA = 'Yes'
+            if ($('#field_'+audit_regime+'-0').prop('checked')) subjectToBBA = 'Yes';
+            else if ($('#field_'+audit_regime+'-1').prop('checked')) subjectToBBA = 'No';
+            else if ($('#field_'+audit_regime+'-2').prop('checked')) subjectToBBA = 'Unsure';
+            else subjectToBBA = 'N/A';
         } else {
             subjectToBBA = 'N/A'
         }
