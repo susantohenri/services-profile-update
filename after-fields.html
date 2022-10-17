@@ -31,6 +31,14 @@ body {
 </style>
 
 <script>
+var taxes_US = 'awpuv32';
+var business_file = '9k7n932';
+var year_end = '65gcl32';
+var company_address = 'eopag32';
+var abatement_opportunities = '30zjt32';
+var business_formed = 'qd3fi2';
+var entity_business = 'takku32';
+var has_the_business_always = 'd87io32';
 
 //Adding Date picker to the form from bootstrap
 
@@ -48,11 +56,11 @@ endDate: new Date(),
 function emptyCells() {
 var lengthOfEmptyCells = $("#form-table td:empty").length;
 var ifBizPartnership = $("input[name='item_meta[22]']:checked").val()
-$('#field_9k7n932, input[name="item_meta[22]"], input[name="item_meta[23]"], #field_65gcl32-otext').on("change", function() {
-    var itfValue = $("#field_9k7n932").val();
+$('#field_'+business_file+', input[name="item_meta[22]"], input[name="item_meta[23]"], #field_'+year_end+'-otext').on("change", function() {
+    var itfValue = $("#field_" + business_file).val();
     var ifBizPartnership = $("input[name='item_meta[22]']:checked").val();
     var ifBizHasBBA = $("input[name='item_meta[23]']:checked").val();
-    var bizYearEndOther = $("#field_65gcl32-otext").val();
+    var bizYearEndOther = $("#field_"+year_end+"-otext").val();
     console.log("value of ifBizPartnership: " + ifBizPartnership);
     console.log("value of itf: " + itfValue);
     if( (ifBizPartnership == "Yes" || ifBizPartnership == "No" || ifBizPartnership == "Unsure") && ifBizHasBBA == "Yes" ) {
@@ -136,11 +144,11 @@ function saveFormAsTextFile() {
     var fieldsToSave =
         $("input[name='item_meta[19]']:checked").val() /*data[0]*/ +
         "n" + 
-        $("#field_9k7n932").val() /*data[1]*/+
+        $("#field_" + business_file).val() /*data[1]*/+
         "n" +
-        $("#field_65gcl32").val() /*data[2]*/ +
+        $("#field_"+year_end).val() /*data[2]*/ +
         "n" +
-        $("#field_65gcl32-otext").val() /*data[3]*/+
+        $("#field_"+year_end+"-otext").val() /*data[3]*/+
         "n" +
         $("input[name='item_meta[22]']:checked").val() /*data[4]*/+
         "n" +
@@ -152,7 +160,7 @@ function saveFormAsTextFile() {
         "n" +
         $("#businessYear").val() /*data[8]*/ +
         "n" +
-        $("#field_takku32").val() /*data[9]*/ +
+        $("#field_"+entity_business).val() /*data[9]*/ +
         "n" +
         $("input[name='item_meta[30]']:checked").val() /*data[10]*/ +
         "n" +
@@ -211,16 +219,16 @@ function loadFile() {
     var data = fr.result.split('n');
     
     if(data[0] == "Yes") {
-        $('#field_awpuv32-0').prop('checked',true);
+        $('#field_'+taxes_US+'-0').prop('checked',true);
     } else if (data[0] == "No") {
-        $('#field_awpuv32-1').prop('checked',true);
+        $('#field_'+taxes_US+'-1').prop('checked',true);
     }
 
-    document.getElementById("field_9k7n932").value = data[1];
+    document.getElementById("field_" + business_file).value = data[1];
 
-    document.getElementById("field_65gcl32").value = data[2];
+    document.getElementById("field_"+year_end).value = data[2];
 
-    document.getElementById("field_65gcl32-otext").value = data[3];
+    document.getElementById("field_"+year_end+"-otext").value = data[3];
 
     if(data[4] == "Yes") {
         $('#field_lgbv12-0').prop('checked',true);
@@ -237,25 +245,25 @@ function loadFile() {
     }
 
     if(data[6] == "Yes") {
-        $('#field_eopag32-0').prop('checked',true);
+        $('#field_'+company_address+'-0').prop('checked',true);
     } else if (data[6] == "No") {
-        $('#field_eopag32-1').prop('checked',true);
+        $('#field_'+company_address+'-1').prop('checked',true);
     }
 
     if(data[7] == "Yes") {
-        $('#field_30zjt32-0').prop('checked',true);
+        $('#field_'+abatement_opportunities+'-0').prop('checked',true);
     } else if (data[7] == "No") {
-        $('#field_30zjt32-1').prop('checked',true);
+        $('#field_'+abatement_opportunities+'-1').prop('checked',true);
     }
 
     document.getElementById("businessYear").value = data[8];
 
-    document.getElementById("field_takku32").value = data[9];
+    document.getElementById("field_"+entity_business).value = data[9];
     
     if(data[10] == "Yes") {
-        $('#field_d87io32-0').prop('checked',true);
+        $('#field_'+has_the_business_always+'-0').prop('checked',true);
     } else if (data[10] == "No") {
-        $('#field_d87io32-1').prop('checked',true);
+        $('#field_'+has_the_business_always+'-1').prop('checked',true);
     }
 
     document.getElementById("optProviderNotes").value = data[11];
@@ -297,7 +305,7 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[1]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log(" 1st Edge Case First condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && !!data[2] && !!data[6] && !!data[7] && !!data[8] && (data[9] != "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[1]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[2]
@@ -357,7 +365,7 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[10]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log("2nd Edge case First condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     } else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
@@ -370,7 +378,7 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[10]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log("2nd Edge case NewFirst condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] != "" && data[2] != "Other") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
@@ -487,7 +495,7 @@ function loadFile() {
      else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -497,11 +505,11 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[10]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log("3rd Edge case First condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -511,11 +519,11 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[10]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log("3rd Edge case NewFirst condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -527,7 +535,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -539,7 +547,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -550,7 +558,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -561,7 +569,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -571,7 +579,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -581,7 +589,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -590,7 +598,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -599,7 +607,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] != "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -607,7 +615,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         //$("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); question[5]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
@@ -615,20 +623,20 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] != "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         $("#frm_field_23_container").css({"display":"flex","flex-direction":"column"}); //question[5]
         console.log("3rd Edge case seventh condition is applied, showing all questions")
     }else if ( !!data[0] && (data[1] == "1065") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined") && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_22_container").css({"display":"flex","flex-direction":"column"}); //question[4]
         console.log("3rd Edge case eight condition is applied, showing all questions")
     } else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] != "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
         $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
@@ -636,11 +644,11 @@ function loadFile() {
         $("#frm_field_30_container").css("display","inline-block"); //question[10]
         document.getElementById("output").innerHTML = "Has the business always been a " + data[9] + " filing a " + data[1] + " with a tax year end of " + data[2];
         console.log("4th Edge case First condition is applied, showing all questions")
-        $( "#field_d87io32-0, #field_d87io32-1" ).trigger( "change" );
+        $( "#field_"+has_the_business_always+"-0, #field_"+has_the_business_always+"-1" ).trigger( "change" );
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] != "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
         $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
@@ -650,7 +658,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined") && (data[7] != "undefined") && (data[8] != "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
         $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
@@ -659,7 +667,7 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined" && !!data[6] ) && (data[7] != "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
         $("#frm_field_28_container").css({"display":"flex","flex-direction":"column"}); //question[8]
@@ -667,14 +675,14 @@ function loadFile() {
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] != "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         $("#frm_field_27_container").css({"display":"flex","flex-direction":"column"}); //question[7]
         console.log("4th Edge case sixth condition is applied, showing all questions")
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2] == "Other") && (data[3] != "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
         $("#frm_field_20_container").css({"display":"flex","flex-direction":"column"}); //question[2]
         $("#frm_field_21_container").css({"display":"flex","flex-direction":"column"}); //question[3]
-        $("#field_65gcl32-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
+        $("#field_"+year_end+"-otext").css({"display":"flex","flex-direction":"column"}); //question[3]
         $("#frm_field_25_container").css("display","inline-block"); //question[6]
         console.log("4th Edge case seventh condition is applied, showing all questions")
     }else if ( !!data[0] && (data[1] != "1065" && data[1] != "null") && (data[2]=="null") && (data[3] == "") && (data[4] == "undefined") && (data[5] == "undefined") && (data[6] == "undefined" && !!data[6] ) && (data[7] == "undefined") && (data[8] == "") && (data[9] == "null") && (data[10] == "undefined")) {
@@ -770,27 +778,27 @@ $( "#tooltip_1, #tooltip_2, #tooltip_3, #tooltip_4, #tooltip_5, #tooltip_6, #too
 
 //Writing jQuery for final dynamic question that pulls in legalEntity, federalIncomeTaxForm, businessYearEnd and businessYear
 
-Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_65gcl32-otext");
+Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_"+year_end+"-otext");
 
 businessYear
 
-Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_65gcl32-otext");
+Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_"+year_end+"-otext");
 
 
 // $(".frm_submit").css("display", "none");
 
-$('input[name="item_meta[19]"], #field_9k7n932, #field_65gcl32, #field_65gcl32-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #businessYear, #field_takku32, input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
+$('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #businessYear, #field_'+entity_business+', input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
     var qa_table = $("#Q_A tbody");
     var answer_q1 = $("input[name='item_meta[19]']:checked").val();
-    var answer_q2= $("#field_9k7n932").val();
-    var answer_q3= $("#field_65gcl32").val();
-    var answer_q4= $("#field_65gcl32-otext").val();
+    var answer_q2= $("#field_" + business_file).val();
+    var answer_q3= $("#field_"+year_end).val();
+    var answer_q4= $("#field_"+year_end+"-otext").val();
     var answer_q5= $("input[name='item_meta[22]']:checked").val();
     var answer_q6= $("input[name='item_meta[23]']:checked").val();
     var answer_q7= $("input[name='item_meta[25]']:checked").val();
     var answer_q8= $("input[name='item_meta[27]']:checked").val();
     var answer_q9= $("#businessYear").val();
-    var answer_q10= $("#field_takku32").val();
+    var answer_q10= $("#field_"+entity_business).val();
     var answer_q11= $("input[name='item_meta[30]']:checked").val();
     var answer_q12= $("#optProviderNotes").val();
     var state = $('#rfp-iframe').contents().find('#cog-1').val();
@@ -814,12 +822,12 @@ $('input[name="item_meta[19]"], #field_9k7n932, #field_65gcl32, #field_65gcl32-o
     qa_table.html(q_and_a_table_append);
 });
 
-$('#field_lgbv12-0, #field_lgbv12-1, #field_lgbv12-2, #field_9k7n932, #field_65gcl32, #field_65gcl32-otext, #field_65gcl32-otext, #businessYear, #field_takku32, input[name="item_meta[30]"]').on("change",function() {
+$('#field_lgbv12-0, #field_lgbv12-1, #field_lgbv12-2, #field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, #field_'+year_end+'-otext, #businessYear, #field_'+entity_business+', input[name="item_meta[30]"]').on("change",function() {
 
-var legalEntity = $("#field_takku32").val();
-var federalIncomeTaxForm = $("#field_9k7n932").val();
-var businessYearEnd = $("#field_65gcl32").val();
-var businessYearEndOther = $("#field_65gcl32-otext").val();
+var legalEntity = $("#field_"+entity_business).val();
+var federalIncomeTaxForm = $("#field_" + business_file).val();
+var businessYearEnd = $("#field_"+year_end).val();
+var businessYearEndOther = $("#field_"+year_end+"-otext").val();
 var businessYear = $("#businessYear").val();
 var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();
 var table = $("#form-table tbody");
@@ -878,12 +886,12 @@ else {
 });
 
 
-$('#field_9k7n932, #field_65gcl32, #field_65gcl32-otext, input[name="item_meta[22]"], input[name="item_meta[23]"],input[name="item_meta[25]"], #businessYear').on("change", function(){
+$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"],input[name="item_meta[25]"], #businessYear').on("change", function(){
 
 var businessYear = $("#businessYear").val();
-var itfValue = $("#field_9k7n932").val();
-var businessYearEnd = $("#field_65gcl32").val();
-var businessYearEndOther = $("#field_65gcl32-otext").val();
+var itfValue = $("#field_" + business_file).val();
+var businessYearEnd = $("#field_"+year_end).val();
+var businessYearEndOther = $("#field_"+year_end+"-otext").val();
 var isSubjectToBBA = $("input[name='item_meta[23]']:checked").val();
 var isSubjectPartnerShip = $("input[name='item_meta[22]']:checked").val();
 var canBusinessProvide = $("input[name='item_meta[25]']:checked").val();
