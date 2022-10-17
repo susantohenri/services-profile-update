@@ -36,13 +36,13 @@ var business_file = '9k7n932';
 var year_end = '65gcl32';
 var company_address = 'eopag32';
 var abatement_opportunities = '30zjt32';
-var business_formed = 'qd3fi2';
+var business_formed = 'gm2gs';
 var entity_business = 'takku32';
 var has_the_business_always = 'd87io32';
 //Adding Date picker to the form from bootstrap
 
 let tableRowSize=0;
-$("#businessYear").datepicker({
+$("#field_" + business_formed).datepicker({
 format: "yyyy",
 viewMode: "years",
 minViewMode: "years",
@@ -157,7 +157,7 @@ function saveFormAsTextFile() {
         "n" +
         $("input[name='item_meta[27]']:checked").val() /*data[7]*/ +
         "n" +
-        $("#businessYear").val() /*data[8]*/ +
+        $("#field_" + business_formed).val() /*data[8]*/ +
         "n" +
         $("#field_"+entity_business).val() /*data[9]*/ +
         "n" +
@@ -255,7 +255,7 @@ function loadFile() {
         $('#field_'+abatement_opportunities+'-1').prop('checked',true);
     }
 
-    document.getElementById("businessYear").value = data[8];
+    document.getElementById("field_" + business_formed).value = data[8];
 
     document.getElementById("field_"+entity_business).value = data[9];
     
@@ -773,14 +773,14 @@ $( "#tooltip_1, #tooltip_2, #tooltip_3, #tooltip_4, #tooltip_5, #tooltip_6, #too
 
 Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_"+year_end+"-otext");
 
-businessYear
+// businessYear
 
 Inputmask({ alias: "datetime", inputFormat: "mm/dd" }).mask("#field_"+year_end+"-otext");
 
 
 $(".frm_submit").css("display", "none");
 
-$('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #businessYear, #field_'+entity_business+', input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
+$('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #field_'+business_formed+', #field_'+entity_business+', input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
     var qa_table = $("#Q_A tbody");
     var answer_q1 = $("input[name='item_meta[19]']:checked").val();
     var answer_q2= $("#field_"+business_file).val();
@@ -790,7 +790,7 @@ $('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #
     var answer_q6= $("input[name='item_meta[23]']:checked").val();
     var answer_q7= $("input[name='item_meta[25]']:checked").val();
     var answer_q8= $("input[name='item_meta[27]']:checked").val();
-    var answer_q9= $("#businessYear").val();
+    var answer_q9= $("#field_" + business_formed).val();
     var answer_q10= $("#field_"+entity_business).val();
     var answer_q11= $("input[name='item_meta[30]']:checked").val();
     var answer_q12= $("#optProviderNotes").val();
@@ -815,13 +815,13 @@ $('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #
     qa_table.html(q_and_a_table_append);
 });
 
-$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, #field_'+year_end+'-otext, #businessYear, #field_'+entity_business+', input[name="item_meta[30]"]').on("change",function() {
+$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, #field_'+year_end+'-otext, #field_'+business_formed+', #field_'+entity_business+', input[name="item_meta[30]"]').on("change",function() {
 
 var legalEntity = $("#field_"+entity_business).val();
 var federalIncomeTaxForm = $("#field_"+business_file).val();
 var businessYearEnd = $("#field_"+year_end).val();
 var businessYearEndOther = $("#field_"+year_end+"-otext").val();
-var businessYear = $("#businessYear").val();
+var businessYear = $("#field_" + business_formed).val();
 var lastDynamicQuestion = $("input[name='item_meta[30]']:checked").val();
 var table = $("#form-table tbody");
 const d = new Date();
@@ -875,9 +875,9 @@ else {
 });
 
 
-$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"],input[name="item_meta[25]"], #businessYear').on("change", function(){
+$('#field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"],input[name="item_meta[25]"], #field_'+business_formed+'').on("change", function(){
 
-var businessYear = $("#businessYear").val();
+var businessYear = $("#field_" + business_formed).val();
 var itfValue = $("#field_"+business_file).val();
 var businessYearEnd = $("#field_"+year_end).val();
 var businessYearEndOther = $("#field_"+year_end+"-otext").val();
@@ -904,7 +904,7 @@ if (itfValue == "1065") {
        $("div#frm_field_26_container").css("display","block");
     }
     if(canBusinessProvide=="No"){
-        document.getElementById("businessYear").value="";
+        document.getElementById("field_" + business_formed).value="";
     }
     if((isSubjectPartnerShip == "No")&&( isSubjectPartnerShip != "")){
     $("#frm_field_25_container").css({"visibility":"visible","height":"auto"});
@@ -936,7 +936,7 @@ if (itfValue == "1065") {
 else {
     $("#frm_field_25_container").css({"visibility":"visible","height":"auto"});
     if(canBusinessProvide=="No"){
-        document.getElementById("businessYear").value="";
+        document.getElementById("field_" + business_formed).value="";
     }else if(canBusinessProvide=="Yes"){
         $("#frm_field_26_container").css("display","none");//warning
     }
@@ -944,7 +944,7 @@ else {
 
 //-----------------//
 var showBusinessYear;
-var val1 = $("#businessYear").val();
+var val1 = $("#field_" + business_formed).val();
 if (val1 == "") {
     showBusinessYear = false;
     console.log("business year is empty: " )
