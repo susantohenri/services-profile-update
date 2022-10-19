@@ -40,6 +40,7 @@ var business_formed = 'gm2gs';
 var entity_business = 'takku36';
 var has_the_business_always = 'd87io36';
 var audit_regime = 'lgbv16';
+var partnership_representative = 'cdd345';
 //Adding Date picker to the form from bootstrap
 
 let tableRowSize=0;
@@ -239,9 +240,9 @@ function loadFile() {
     }
 
     if(data[5] == "Yes") {
-        $('#field_cdd342-0').prop('checked',true);
+        $('#field_'+partnership_representative+'-0').prop('checked',true);
     } else if (data[5] == "No") {
-        $('#field_cdd342-1').prop('checked',true);
+        $('#field_'+partnership_representative+'-1').prop('checked',true);
     }
 
     if(data[6] == "Yes") {
@@ -783,18 +784,42 @@ $(".frm_submit").css("display", "none");
 
 $('input[name="item_meta[19]"], #field_'+business_file+', #field_'+year_end+', #field_'+year_end+'-otext, input[name="item_meta[22]"], input[name="item_meta[23]"], input[name="item_meta[25]"], input[name="item_meta[27]"], #field_'+business_formed+', #field_'+entity_business+', input[name="item_meta[30]"], #optProviderNotes, #cog-0,#cog-1,#rfp-iframe').on("change",function() {
     var qa_table = $("#Q_A tbody");
-    var answer_q1 = $("input[name='item_meta[19]']:checked").val();
+
+    var answer_q1 = ''
+    if ($('#field_'+taxes_US+'-0').is(':checked')) answer_q1 = 'Yes'
+    else if ($('#field_'+taxes_US+'-1').is(':checked')) answer_q1 = 'No'
+
     var answer_q2= $("#field_"+business_file).val();
     var answer_q3= $("#field_"+year_end).val();
     var answer_q4= $("#field_"+year_end+"-otext").val();
-    var answer_q5= $("input[name='item_meta[22]']:checked").val();
-    var answer_q6= $("input[name='item_meta[23]']:checked").val();
-    var answer_q7= $("input[name='item_meta[25]']:checked").val();
-    var answer_q8= $("input[name='item_meta[27]']:checked").val();
+
+    var answer_q5 = ''
+    if ($('#field_'+audit_regime+'-0').is(':checked')) answer_q5 = 'Yes'
+    else if ($('#field_'+audit_regime+'-1').is(':checked')) answer_q5 = 'No'
+    else if ($('#field_'+audit_regime+'-2').is(':checked')) answer_q5 = 'Unsure'
+
+    var answer_q6 = ''
+    if ($('#field_'+partnership_representative+'-0').is(':checked')) answer_q6 = 'Yes'
+    else if ($('#field_'+partnership_representative+'-1').is(':checked')) answer_q6 = 'No'
+
+    var answer_q7 = ''
+    if ($('#field_'+company_address+'-0').is(':checked')) answer_q7 = 'Yes'
+    else if ($('#field_'+company_address+'-1').is(':checked')) answer_q7 = 'No'
+
+    var answer_q8 = ''
+    if ($('#field_'+abatement_opportunities+'-0').is(':checked')) answer_q8 = 'Yes'
+    else if ($('#field_'+abatement_opportunities+'-1').is(':checked')) answer_q8 = 'No'
+
     var answer_q9= $("#field_" + business_formed).val();
     var answer_q10= $("#field_"+entity_business).val();
-    var answer_q11= $("input[name='item_meta[30]']:checked").val();
-    var answer_q12= $("#optProviderNotes").val();
+
+    var answer_q11 = ''
+    if ($('#field_'+has_the_business_always+'-0').is(':checked')) answer_q11 = 'Yes'
+    else if ($('#field_'+has_the_business_always+'-1').is(':checked')) answer_q11 = 'No'
+
+    var answer_q12= '';
+    if ($("#optProviderNotes")) $("#optProviderNotes").val();
+
     var state = $('#rfp-iframe').contents().find('#cog-1').val();
     if(!!state){
         alert(state);
