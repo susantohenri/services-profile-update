@@ -267,7 +267,7 @@ function loadFile() {
         $('#field_'+has_the_business_always+'-1').prop('checked',true);
     }
 
-    document.getElementById("optProviderNotes").value = data[11];
+    if (document.getElementById("optProviderNotes")) document.getElementById("optProviderNotes").value = data[11];
     
 
     //end of writing values to the save file
