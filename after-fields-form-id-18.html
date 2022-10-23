@@ -707,6 +707,7 @@
         var addRowAppend =
             "<tr><td id='addRowTd'><input type='button' id='addRow' value='+' onClick='addTableRow(this)'/></td><td id='currentYear'></td>Current Year - <td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td contenteditable onkeyup='tdCheck(this)'></td><td id='removeRowTd'><i class='fa-solid fa-trash' onclick='RemoveMe(this)'></i></td></tr>";
         $(object).parents("tr").after(addRowAppend);
+        updateCSVDynamicTable()
         tableRowSize++;
         //   console.log("add row function is running");
         //   console.log("tableRowSize on add: " + tableRowSize);
@@ -902,6 +903,7 @@
                 console.log("skipped the main loop to generate table");
             }
             table.html(resultHtml);
+            updateCSVDynamicTable();
             return true;
         });
     });
@@ -1010,4 +1012,14 @@
 
     });
 
+    function updateCSVDynamicTable() {
+        $("table#form-table tbody tr").each(function (index) {
+            var csv_row = index + 39
+            $(this).find('td').each(icol => {
+                var col = $(this).find('td').eq(icol)
+                    , csv_col = String.fromCharCode(97 + icol - 1).toUpperCase()
+                if (col.is('[contenteditable]') || col.is('#currentYear')) col.attr('data-csv', `${csv_col}${csv_row}`)
+            })
+        });
+    }
 </script>
