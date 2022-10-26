@@ -42,6 +42,11 @@
     var partnership_representative = 'cdd345';
     //Adding Date picker to the form from bootstrap
 
+    // update dynamic label if form loaded with default value
+    setTimeout(() => {
+        if ('' !== $(`#field_${entity_business}`).val()) $(`#field_${entity_business}`).change()
+    }, 1000)
+
     let tableRowSize = 0;
     $("#field_" + business_formed).datepicker({
         format: "yyyy",
