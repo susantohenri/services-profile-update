@@ -44,7 +44,13 @@
 
     // update dynamic label if form loaded with default value
     setTimeout(() => {
-        if ('' !== $(`#field_${entity_business}`).val()) $(`#field_${entity_business}`).change()
+        if ('' !== $(`#field_${entity_business}`).val()) {
+            $(`#field_${entity_business}`).change()
+            var dynamic_label = $(`#field_${has_the_business_always}_label #output`)
+                , dynamic_label_html = dynamic_label.html()
+            dynamic_label.css('color', 'black')
+            if ('?' !== dynamic_label_html.slice(-1)) dynamic_label.html(`${dynamic_label_html}?`)
+        }
     }, 1000)
 
     let tableRowSize = 0;
