@@ -47,9 +47,9 @@ add_action('admin_menu', function () {
                                         <span>Field Mapping CSV</span>
                                         <div>
                                             <?php if (file_exists(SERVICES_PROFILE_UPDATE_CSV_FILE)) : ?>
-                                                <a class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_ACTIVE ?>" style="text-decoration:none;">Export Current Field Mapping</a>
+                                                <a class="button button-primary" href="<?= site_url() . '/wp-json/services-profile-update/v1/download-latest' ?>" style="text-decoration:none;">Export Current Field Mapping</a>
                                             <?php endif ?>
-                                            <a class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE ?>" style="text-decoration:none;">Download Empty CSV Sample File</a>
+                                            <a class="button button-primary" href="<?= site_url() . '/wp-json/services-profile-update/v1/download-sample' ?>" style="text-decoration:none;">Download Empty CSV Sample File</a>
                                         </div>
                                     </h2>
                                 </div>
@@ -168,3 +168,26 @@ function services_profile_update($entry_id, $form_id)
         }
     }
 }
+
+add_action('rest_api_init', function () {
+    register_rest_route('services-profile-update/v1', '/download-sample', array(
+        'methods' => 'GET',
+        'permission_callback' => '__return_true',
+        'callback' => function () {
+            $filename = basename(SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE);
+            header("Content-Disposition: attachment; filename=\"{$filename}\"");
+            header('Content-Type: text/csv');
+            readfile(SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE);
+        }
+    ));
+    register_rest_route('services-profile-update/v1', '/download-latest', array(
+        'methods' => 'GET',
+        'permission_callback' => '__return_true',
+        'callback' => function () {
+            $filename = basename(SERVICES_PROFILE_UPDATE_CSV_FILE_ACTIVE);
+            header("Content-Disposition: attachment; filename=\"{$filename}\"");
+            header('Content-Type: text/csv');
+            readfile(SERVICES_PROFILE_UPDATE_CSV_FILE_ACTIVE);
+        }
+    ));
+});
