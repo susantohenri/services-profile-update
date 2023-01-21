@@ -84,10 +84,11 @@ add_action('frm_after_update_entry', 'services_profile_update', 10, 2);
 
 function services_profile_update($entry_id, $form_id)
 {
-    $lines = services_profile_update_read_csv();
-    if (!in_array($form_id, array_map(function ($line) {
-        return $line['source_form'];
-    }, $lines))) return true;
+    $lines = [];
+    foreach (services_profile_update_read_csv() as $line) {
+        if ($line['source_form'] === "{$form_id}") $lines[] = $line;
+    }
+    if (empty($lines)) return true;
 
     global $wpdb;
     $source_entry_answers = [];
@@ -114,7 +115,15 @@ function services_profile_update($entry_id, $form_id)
         AND target_entry.form_id IN ($target_forms)
     ", $entry_id));
 
-    $target_entries = $wpdb->get_results($wpdb->prepare("SELECT id entry_id, form_id FROM {$wpdb->prefix}frm_items WHERE {$wpdb->prefix}frm_items.form_id IN ($target_forms)"));
+    $target_entries = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            target_entry.id entry_id
+            , target_entry.form_id
+        FROM {$wpdb->prefix}frm_items target_entry
+        RIGHT JOIN {$wpdb->prefix}frm_items source_entry ON target_entry.user_id = source_entry.user_id
+        WHERE target_entry.form_id IN ($target_forms)
+        AND source_entry.id = %d
+    ", $entry_id));
 
     foreach ($lines as $line) {
         foreach (array_values(array_filter($target_entries, function ($entry) use ($line) {
@@ -142,6 +151,7 @@ function services_profile_update($entry_id, $form_id)
                         case 'AND':
                             $is_match = $is_match && $partial_match;
                             break;
+                        case '':
                         case 'OR':
                             $is_match = $is_match || $partial_match;
                             break;
@@ -268,7 +278,7 @@ function services_profile_update_read_csv()
 
     foreach ($rows as $columns) {
         $target_field = substr($columns[1], 1, -1);
-        if (!isset ($forms[$target_field])) continue;// exclude incomplete/invalid line
+        if (!isset($forms[$target_field])) continue; // exclude incomplete/invalid line
         $target_form = $forms[$target_field];
         $target_value = $columns[2];
 
@@ -338,6 +348,7 @@ function services_profile_update_compare($formula, $source, $target)
             $result = $value_1 != $value_2;
             break;
     }
+
     return $result;
 }
 
