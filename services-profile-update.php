@@ -90,9 +90,9 @@ function services_profile_update($entry_id, $form_id)
     }, $lines))) return true;
 
     global $wpdb;
-    $source_entry = [];
+    $source_entry_answers = [];
     foreach ($wpdb->get_results($wpdb->prepare("SELECT field_id , meta_value FROM {$wpdb->prefix}frm_item_metas WHERE item_id = %d ", $entry_id)) as $answer) {
-        $source_entry[$answer->field_id] = $answer->meta_value;
+        $source_entry_answers[$answer->field_id] = $answer->meta_value;
     };
 
     $target_forms = array_map(function ($line) {
@@ -102,7 +102,7 @@ function services_profile_update($entry_id, $form_id)
     $targets = $wpdb->get_results($wpdb->prepare("
         SELECT
             target_entry.form_id target_form
-            , target_entry.id target_entry
+            , target_entry.id target_entry_id
             , target_answer.id answer_id
             , target_answer.field_id answer_field
             , target_answer.meta_value answer_value
@@ -122,18 +122,22 @@ function services_profile_update($entry_id, $form_id)
         })) as $target_entry) {
             $is_match = 'AND' === $line['source_logic'];
 
-            // find target_answer_id
-            $find_target_answer = array_values(array_filter($targets, function ($target_answer) use ($target_entry) {
-                return $target_answer->target_entry === $target_entry->entry_id;
-            }));
-            $target_answer_id = isset($find_target_answer[0]) ? $find_target_answer[0] : null;
+            $target_entry_answers = [];
+            $target_answer_id = null;
+            foreach (array_values(array_filter($targets, function ($target) use ($target_entry) {
+                return $target->target_entry_id === $target_entry->entry_id;
+            })) as $answer) {
+                $target_entry_answers[$answer->answer_field] = $answer->answer_value;
+                // $target_entry_answers[] = ['id' => $answer->answer_id, 'field' => $answer->answer_field, 'value' => $answer->answer_value];
+                if ($answer->answer_field === $line['target_field']) $target_answer_id = $answer->answer_id;
+            }
 
             // matching
             $formula_column = 4;
-            if (!isset($line['raw_data'][$formula_column])) $is_match = true;
+            if (!isset($line['raw_data'][$formula_column]) || '' === $line['raw_data'][$formula_column]) $is_match = true;
             else {
                 while (isset($line['raw_data'][$formula_column])) {
-                    $partial_match = services_profile_update_compare($line['raw_data'][$formula_column], $source_entry, $find_target_answer);
+                    $partial_match = services_profile_update_compare($line['raw_data'][$formula_column], $source_entry_answers, $target_entry_answers);
                     switch ($line['source_logic']) {
                         case 'AND':
                             $is_match = $is_match && $partial_match;
@@ -147,9 +151,9 @@ function services_profile_update($entry_id, $form_id)
             }
 
             // set target value
-            if ('[' === $line['target_value'][0]) {
+            if ('[' === $line['target_value'][0] && ']' === $line['target_value'][strlen($line['target_value']) - 1]) {
                 $source_field_id = substr($line['target_value'], 1, -1);
-                $target_answer_value = $source_entry[$source_field_id];
+                $target_answer_value = $source_entry_answers[$source_field_id];
                 if (!isset($target_answer_value)) $is_match = false;
             } else $target_answer_value = $line['target_value'];
 
@@ -264,8 +268,8 @@ function services_profile_update_read_csv()
 
     foreach ($rows as $columns) {
         $target_field = substr($columns[1], 1, -1);
+        if (!isset ($forms[$target_field])) continue;// exclude incomplete/invalid line
         $target_form = $forms[$target_field];
-        if (is_null($target_form)) continue; // exclude incomplete/invalid line
         $target_value = $columns[2];
 
         $source_column = 4;
@@ -276,10 +280,15 @@ function services_profile_update_read_csv()
         }
 
         $source_form = 0;
-        foreach ($source_formulas as $formula) {
+        $value_column = 2;
+        if ('[' === $columns[$value_column][0] && ']' === $columns[$value_column][strlen($columns[$value_column]) - 1]) {
+            $field_id = substr($columns[$value_column], 1, -1);
+            $form_id = $forms[$field_id];
+            if ($form_id !== $target_form) $source_form = $form_id;
+        } else foreach ($source_formulas as $formula) {
             if (0 === $source_form) foreach (explode(' ', $formula) as $formula_part) {
                 if (0 !== $source_form) continue;
-                if ('[' === $formula_part[0]) {
+                if ('[' === $formula_part[0] && ']' === $formula_part[strlen($formula_part) - 1]) {
                     $field_id = substr($formula_part, 1, -1);
                     $form_id = $forms[$field_id];
                     if ($form_id !== $target_form) $source_form = $form_id;
@@ -287,7 +296,10 @@ function services_profile_update_read_csv()
             }
         }
 
-        $lines[] = [
+        $line_valid = true;
+        // line validation goes here
+
+        if ($line_valid) $lines[] = [
             'target_form' => $target_form,
             'target_field' => $target_field,
             'target_value' => $target_value,
@@ -301,9 +313,31 @@ function services_profile_update_read_csv()
     return $lines;
 }
 
-function services_profile_update_compare()
+function services_profile_update_compare($formula, $source, $target)
 {
     $result = false;
+
+    $formula = explode(' ', $formula);
+    $field_1 = substr($formula[0], 1, -1);
+    $operator = $formula[1];
+    $field_2 = substr($formula[2], 1, -1);
+
+    $value_1 = null;
+    if (isset($source[$field_1])) $value_1 = $source[$field_1];
+    else if (isset($target[$field_1])) $value_1 = $target[$field_1];
+
+    $value_2 = null;
+    if (isset($source[$field_2])) $value_2 = $source[$field_2];
+    else if (isset($target[$field_2])) $value_2 = $target[$field_2];
+
+    switch ($operator) {
+        case 'equals':
+            $result = $value_1 == $value_2;
+            break;
+        case 'not-equals':
+            $result = $value_1 != $value_2;
+            break;
+    }
     return $result;
 }
 
