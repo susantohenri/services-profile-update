@@ -145,7 +145,7 @@ function services_profile_update($entry_id, $form_id)
             $formula_column = 4;
             if (!isset($line['raw_data'][$formula_column]) || '' === $line['raw_data'][$formula_column]) $is_match = true;
             else {
-                while (isset($line['raw_data'][$formula_column])) {
+                while (isset($line['raw_data'][$formula_column]) && '' !== $line['raw_data'][$formula_column]) {
                     $partial_match = services_profile_update_compare($line['raw_data'][$formula_column], $source_entry_answers, $target_entry_answers);
                     switch ($line['source_logic']) {
                         case 'AND':
