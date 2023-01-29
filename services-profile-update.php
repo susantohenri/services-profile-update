@@ -84,12 +84,106 @@ add_action('frm_after_update_entry', 'services_profile_update', 10, 2);
 
 function services_profile_update($entry_id, $form_id)
 {
-    $lines = [];
+    $target_triggered_lines = [];
+    $source_triggered_lines = [];
     foreach (services_profile_update_read_csv() as $line) {
-        if ($line['source_form'] === "{$form_id}") $lines[] = $line;
+        if ($line['target_form'] === "{$form_id}") $target_triggered_lines[] = $line;
+        if ($line['source_form'] === "{$form_id}") $source_triggered_lines[] = $line;
     }
-    if (empty($lines)) return true;
+    if (!empty($target_triggered_lines)) services_profile_update_target_submitted($target_triggered_lines, $entry_id);
+    if (!empty($source_triggered_lines)) services_profile_update_source_submitted($source_triggered_lines, $entry_id);
+}
 
+function services_profile_update_target_submitted($lines, $entry_id)
+{
+    global $wpdb;
+    $target_entry_answers = [];
+    $target_entry_answer_ids = [];
+    foreach ($wpdb->get_results($wpdb->prepare("SELECT id, field_id , meta_value FROM {$wpdb->prefix}frm_item_metas WHERE item_id = %d ", $entry_id)) as $answer) {
+        $target_entry_answers[$answer->field_id] = $answer->meta_value;
+        $target_entry_answer_ids[$answer->field_id] = $answer->id;
+    };
+
+    $source_forms = array_map(function ($line) {
+        return $line['source_form'];
+    }, $lines);
+    $source_forms = implode(',', $source_forms);
+    $sources = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            source_entry.form_id source_form
+            , source_entry.id source_entry_id
+            , source_answer.id answer_id
+            , source_answer.field_id answer_field
+            , source_answer.meta_value answer_value
+        FROM
+            {$wpdb->prefix}frm_item_metas source_answer
+            RIGHT JOIN {$wpdb->prefix}frm_items source_entry ON source_answer.item_id = source_entry.id
+            RIGHT JOIN {$wpdb->prefix}frm_items target_entry ON source_entry.user_id = target_entry.user_id
+        WHERE target_entry.id = %d
+        AND source_entry.form_id IN ($source_forms)
+    ", $entry_id));
+
+    $source_entries = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            source_entry.id entry_id
+            , source_entry.form_id
+        FROM {$wpdb->prefix}frm_items source_entry
+        RIGHT JOIN {$wpdb->prefix}frm_items target_entry ON source_entry.user_id = target_entry.user_id
+        WHERE source_entry.form_id IN ($source_forms)
+        AND target_entry.id = %d
+    ", $entry_id));
+
+    foreach ($lines as $line) {
+        $target_entry_updated = false;
+        $target_answer_id = isset($target_entry_answer_ids[$line['target_field']]) ? $target_entry_answer_ids[$line['target_field']] : null;
+
+        foreach (array_values(array_filter($source_entries, function ($entry) use ($line) {
+            return $entry->form_id === $line['source_form'];
+        })) as $source_entry) {
+            if ($target_entry_updated) continue;
+            $is_match = 'AND' === $line['source_logic'];
+
+            $source_entry_answers = [];
+            foreach (array_values(array_filter($sources, function ($source) use ($source_entry) {
+                return $source->source_entry_id === $source_entry->entry_id;
+            })) as $answer) {
+                $source_entry_answers[$answer->answer_field] = $answer->answer_value;
+            }
+
+            $formula_column = 4;
+            if (!isset($line['raw_data'][$formula_column]) || '' === $line['raw_data'][$formula_column]) $is_match = true;
+            else {
+                while (isset($line['raw_data'][$formula_column]) && '' !== $line['raw_data'][$formula_column]) {
+                    $partial_match = services_profile_update_compare($line['raw_data'][$formula_column], $target_entry_answers, $source_entry_answers);
+                    switch ($line['source_logic']) {
+                        case 'AND':
+                            $is_match = $is_match && $partial_match;
+                            break;
+                        case '':
+                        case 'OR':
+                            $is_match = $is_match || $partial_match;
+                            break;
+                    }
+                    $formula_column++;
+                }
+            }
+
+            if ('[' === $line['target_value'][0] && ']' === $line['target_value'][strlen($line['target_value']) - 1]) {
+                $source_field_id = substr($line['target_value'], 1, -1);
+                $target_answer_value = $source_entry_answers[$source_field_id];
+                if (!isset($target_answer_value)) $is_match = false;
+            } else $target_answer_value = $line['target_value'];
+
+            if ($is_match) {
+                services_profile_update_update($target_answer_value, $target_answer_id, $entry_id, $line['target_field']);
+                $target_entry_updated = true;
+            }
+        }
+    }
+}
+
+function services_profile_update_source_submitted($lines, $entry_id)
+{
     global $wpdb;
     $source_entry_answers = [];
     foreach ($wpdb->get_results($wpdb->prepare("SELECT field_id , meta_value FROM {$wpdb->prefix}frm_item_metas WHERE item_id = %d ", $entry_id)) as $answer) {
@@ -137,7 +231,6 @@ function services_profile_update($entry_id, $form_id)
                 return $target->target_entry_id === $target_entry->entry_id;
             })) as $answer) {
                 $target_entry_answers[$answer->answer_field] = $answer->answer_value;
-                // $target_entry_answers[] = ['id' => $answer->answer_id, 'field' => $answer->answer_field, 'value' => $answer->answer_value];
                 if ($answer->answer_field === $line['target_field']) $target_answer_id = $answer->answer_id;
             }
 
