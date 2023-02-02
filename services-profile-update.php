@@ -47,9 +47,9 @@ add_action('admin_menu', function () {
                                         <span>Field Mapping CSV</span>
                                         <div>
                                             <?php if (file_exists(SERVICES_PROFILE_UPDATE_CSV_FILE)) : ?>
-                                                <a download class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_ACTIVE ?>" style="text-decoration:none;">Export Current Field Mapping</a>
+                                                <a download="<?= basename(SERVICES_PROFILE_UPDATE_CSV_FILE) ?>" class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_ACTIVE ?>" style="text-decoration:none;">Export Current Field Mapping</a>
                                             <?php endif ?>
-                                            <a download class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE ?>" style="text-decoration:none;">Download Empty CSV Sample File</a>
+                                            <a download="<?= basename(SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE) ?>" class="button button-primary" href="<?= SERVICES_PROFILE_UPDATE_CSV_FILE_SAMPLE ?>" style="text-decoration:none;">Download Empty CSV Sample File</a>
                                         </div>
                                     </h2>
                                 </div>
