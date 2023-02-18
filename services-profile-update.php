@@ -345,6 +345,7 @@ function services_profile_update_compare($formula, $source, $target)
     $value_2 = null;
     if (isset($source[$field_2])) $value_2 = $source[$field_2];
     else if (isset($target[$field_2])) $value_2 = $target[$field_2];
+    else $value_2 = $field_2;
 
     switch ($operator) {
         case 'equals':
