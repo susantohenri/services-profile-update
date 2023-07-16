@@ -85,7 +85,7 @@ add_action('frm_after_update_entry', 'services_profile_update', 10, 2);
 function services_profile_update($entry_id, $form_id)
 {
     $lines = services_profile_update_read_csv();
-    echo json_encode($lines[0]['Trigger']);
+    echo json_encode($lines);
 }
 
 function services_profile_update_read_csv()
@@ -100,10 +100,10 @@ function services_profile_update_read_csv()
             if (0 === $line_number) $headers = $data;
             else {
                 $line = [];
-                for ($col=0; $col < count($data); $col++) {
+                for ($col = 0; $col < count($data); $col++) {
                     $line[$headers[$col]] = $data[$col];
                 }
-                $lines[] = $line;
+                if (services_profile_update_validate_csv_line($line)) $lines[] = $line;
             }
             $line_number++;
         }
@@ -111,4 +111,14 @@ function services_profile_update_read_csv()
     }
 
     return $lines;
+}
+
+function services_profile_update_validate_csv_line($line)
+{
+    if ('' === $line['Trigger']) return false;
+    if ('' === $line['Target']) return false;
+    $fields_conditions = explode('equals', $line['Conditions']);
+    if ('' === $fields_conditions[0]) return false;
+    if (isset ($fields_conditions[1]) && '' === $fields_conditions[1]) return false;
+    return true;
 }
