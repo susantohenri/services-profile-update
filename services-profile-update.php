@@ -91,10 +91,11 @@ function services_profile_update($entry_id, $form_id)
     if (empty($lines)) return true;
 
     $entry_user = services_profile_update_get_entry_user_id($entry_id);
-    $fields = [];
-    foreach ($lines as $line) $fields = array_merge($fields, services_profile_update_line_extract_fields($line));
-    $fields = array_values(array_unique($fields));
-    echo json_encode($fields);
+    $line_fields = [];
+    foreach ($lines as $line) $line_fields = array_merge($line_fields, services_profile_update_line_extract_fields($line));
+    $line_fields = array_values(array_unique($line_fields));
+    $answers = services_profile_update_collect_answers($entry_user, $line_fields);
+    echo json_encode($answers);
 }
 
 function services_profile_update_read_csv()
@@ -151,4 +152,20 @@ function services_profile_update_line_extract_fields($line)
         $fields[] = substr($conditions[1], 1, -1);
     }
     return $fields;
+}
+
+function services_profile_update_collect_answers($user_id, $fields)
+{
+    global $wpdb;
+    $fields = implode(',', $fields);
+    $answers = $wpdb->get_results($wpdb->prepare("
+        SELECT
+            {$wpdb->prefix}frm_items.id entry
+            , field_id question
+            , meta_value answer
+        FROM {$wpdb->prefix}frm_item_metas
+        RIGHT JOIN {$wpdb->prefix}frm_items ON {$wpdb->prefix}frm_items.id = {$wpdb->prefix}frm_item_metas.item_id
+        WHERE {$wpdb->prefix}frm_items.user_id = %d AND field_id IN ($fields)
+    ", $user_id));
+    return $answers;
 }
