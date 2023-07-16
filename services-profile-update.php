@@ -95,7 +95,8 @@ function services_profile_update($entry_id, $form_id)
     foreach ($lines as $line) $line_fields = array_merge($line_fields, services_profile_update_line_extract_fields($line));
     $line_fields = array_values(array_unique($line_fields));
     $answers = services_profile_update_collect_answers($entry_user, $line_fields);
-    echo json_encode($answers);
+
+    foreach ($lines as $line) services_profile_update_execute_line($entry_user, $line, $answers);
 }
 
 function services_profile_update_read_csv()
@@ -136,7 +137,7 @@ function services_profile_update_validate_csv_line($line)
 function services_profile_update_get_entry_user_id($entry_id)
 {
     global $wpdb;
-    return $wpdb->get_var($wpdb->prepare("SELECT user_id FROM {$wpdb->prefix}frm_items WHERE id = %d", $entry_id));
+    return $wpdb->get_var($wpdb->prepare("SELECT {$wpdb->prefix}frm_items.user_id FROM {$wpdb->prefix}frm_items WHERE id = %d", $entry_id));
 }
 
 function services_profile_update_line_extract_fields($line)
@@ -161,11 +162,64 @@ function services_profile_update_collect_answers($user_id, $fields)
     $answers = $wpdb->get_results($wpdb->prepare("
         SELECT
             {$wpdb->prefix}frm_items.id entry
-            , field_id question
-            , meta_value answer
+            , {$wpdb->prefix}frm_item_metas.field_id question
+            , {$wpdb->prefix}frm_item_metas.meta_value answer
         FROM {$wpdb->prefix}frm_item_metas
         RIGHT JOIN {$wpdb->prefix}frm_items ON {$wpdb->prefix}frm_items.id = {$wpdb->prefix}frm_item_metas.item_id
-        WHERE {$wpdb->prefix}frm_items.user_id = %d AND field_id IN ($fields)
+        WHERE {$wpdb->prefix}frm_items.user_id = %d AND {$wpdb->prefix}frm_item_metas.field_id IN ($fields)
     ", $user_id));
     return $answers;
+}
+
+function services_profile_update_execute_line($entry_user, $line, $answers)
+{
+    $conditions = explode(' equals ', $line['Conditions']);
+    $left_question = substr($conditions[0], 1, -1);
+    $right_is_field = '[' === $conditions[1][0];
+    $right_question = substr($conditions[1], 1, -1);
+
+    $left_side_answers = services_profile_update_collect_values($left_question, $answers);
+    $right_side_answers = $right_is_field ? services_profile_update_collect_values($right_question, $answers) : [$right_question];
+    $matching_conditions = array_intersect($left_side_answers, $right_side_answers);
+
+    if (!empty($matching_conditions)) {
+        $value = services_profile_update_line_get_value($line, $answers);
+        if (is_null($value)) return true;
+
+        global $wpdb;
+        return $wpdb->query($wpdb->prepare("
+            UPDATE {$wpdb->prefix}frm_item_metas
+            RIGHT JOIN {$wpdb->prefix}frm_items ON {$wpdb->prefix}frm_items.id = {$wpdb->prefix}frm_item_metas.item_id
+            SET {$wpdb->prefix}frm_item_metas.meta_value = '{$value}'
+            WHERE {$wpdb->prefix}frm_items.user_id = %d
+        ", $entry_user));
+    }
+}
+
+function services_profile_update_collect_values($question, $answers)
+{
+    $values = [];
+    $values = array_filter($answers, function ($answer) use ($question) {
+        return $question == $answer->question;
+    });
+    $values = array_values($values);
+    $values = array_map(function ($value) {
+        return $value->answer;
+    }, $values);
+    $values = array_unique($values);
+    return $values;
+}
+
+function services_profile_update_line_get_value($line, $answers)
+{
+    $value = $line['Value'];
+    if ('[' == $value[0]) {
+        $value_answers = array_values(array_filter($answers, function ($answer) use ($value) {
+            return $value == $answer->question;
+        }));
+        if (empty($value_answer)) return null;
+        $value_answer = end($value_answers);
+        $value = $value_answer->answer;
+    }
+    return $value;
 }
