@@ -90,6 +90,7 @@ function services_profile_update($entry_id, $form_id)
         if ($line['target_form'] === "{$form_id}") $target_triggered_lines[] = $line;
         if ($line['source_form'] === "{$form_id}") $source_triggered_lines[] = $line;
     }
+
     if (!empty($target_triggered_lines)) services_profile_update_target_submitted($target_triggered_lines, $entry_id);
     if (!empty($source_triggered_lines)) services_profile_update_source_submitted($source_triggered_lines, $entry_id);
 }
@@ -297,7 +298,7 @@ function services_profile_update_read_csv()
 
         $source_form = 0;
         $value_column = 2;
-        if ('[' === $columns[$value_column][0] && ']' === $columns[$value_column][strlen($columns[$value_column]) - 1]) {
+        if (isset ($columns[$value_column][0]) && '[' === $columns[$value_column][0] && ']' === $columns[$value_column][strlen($columns[$value_column]) - 1]) {
             $field_id = substr($columns[$value_column], 1, -1);
             $form_id = $forms[$field_id];
             if ($form_id !== $target_form) $source_form = $form_id;
