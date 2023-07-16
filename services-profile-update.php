@@ -91,7 +91,10 @@ function services_profile_update($entry_id, $form_id)
     if (empty($lines)) return true;
 
     $entry_user = services_profile_update_get_entry_user_id($entry_id);
-    echo $entry_user;
+    $fields = [];
+    foreach ($lines as $line) $fields = array_merge($fields, services_profile_update_line_extract_fields($line));
+    $fields = array_values(array_unique($fields));
+    echo json_encode($fields);
 }
 
 function services_profile_update_read_csv()
@@ -107,7 +110,7 @@ function services_profile_update_read_csv()
             else {
                 $line = [];
                 for ($col = 0; $col < count($data); $col++) {
-                    $line[$headers[$col]] = $data[$col];
+                    $line[$headers[$col]] = trim($data[$col]);
                 }
                 if (services_profile_update_validate_csv_line($line)) $lines[] = $line;
             }
@@ -123,7 +126,7 @@ function services_profile_update_validate_csv_line($line)
 {
     if ('' === $line['Trigger']) return false;
     if ('' === $line['Target']) return false;
-    $fields_conditions = explode('equals', $line['Conditions']);
+    $fields_conditions = explode(' equals ', $line['Conditions']);
     if ('' === $fields_conditions[0]) return false;
     if (isset($fields_conditions[1]) && '' === $fields_conditions[1]) return false;
     return true;
@@ -133,4 +136,19 @@ function services_profile_update_get_entry_user_id($entry_id)
 {
     global $wpdb;
     return $wpdb->get_var($wpdb->prepare("SELECT user_id FROM {$wpdb->prefix}frm_items WHERE id = %d", $entry_id));
+}
+
+function services_profile_update_line_extract_fields($line)
+{
+    $fields = [];
+    $fields[] = substr($line['Target'], 1, -1);
+    if ('[' === $line['Value'][0] && ']' === $line['Value'][strlen($line['Value']) - 1]) {
+        $fields[] = substr($line['Value'], 1, -1);
+    }
+    $conditions = explode(' equals ', $line['Conditions']);
+    $fields[] = substr($conditions[0], 1, -1);
+    if ('[' === $conditions[1][0] && ']' === $conditions[1][strlen($conditions[1]) - 1]) {
+        $fields[] = substr($conditions[1], 1, -1);
+    }
+    return $fields;
 }
