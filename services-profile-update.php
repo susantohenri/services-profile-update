@@ -182,17 +182,20 @@ function services_profile_update_execute_line($entry_user, $line, $answers)
     $right_side_answers = $right_is_field ? services_profile_update_collect_values($right_question, $answers) : [$right_question];
     $matching_conditions = array_intersect($left_side_answers, $right_side_answers);
 
+    $target_field_id = substr($line['Target'], 1, -1);
+
     if (!empty($matching_conditions)) {
         $value = services_profile_update_line_get_value($line, $answers);
         if (is_null($value)) return true;
 
         global $wpdb;
-        return $wpdb->query($wpdb->prepare("
+        $wpdb->query($wpdb->prepare("
             UPDATE {$wpdb->prefix}frm_item_metas
             RIGHT JOIN {$wpdb->prefix}frm_items ON {$wpdb->prefix}frm_items.id = {$wpdb->prefix}frm_item_metas.item_id
             SET {$wpdb->prefix}frm_item_metas.meta_value = '{$value}'
             WHERE {$wpdb->prefix}frm_items.user_id = %d
-        ", $entry_user));
+            AND {$wpdb->prefix}frm_item_metas.field_id = %d
+        ", $entry_user, $target_field_id));
     }
 }
 
@@ -232,6 +235,7 @@ SELECT
 
     -- , target.user_id target_user
     , target.item_id target_entry
+    , target.answer_id target_answer_id
     , target.field_id target_field
     , target.meta_value target_answer
 
@@ -249,12 +253,13 @@ FROM wp_frm_items submmitted
 LEFT JOIN (
     SELECT
         wp_frm_items.user_id
+        , wp_frm_item_metas.id answer_id
         , item_id
         , field_id
         , meta_value
     FROM wp_frm_item_metas
     RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (1084, 1085)
+    WHERE field_id IN (1084, 1086)
 ) target ON target.user_id = submmitted.user_id
 
 LEFT JOIN (
