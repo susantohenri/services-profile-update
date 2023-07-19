@@ -223,3 +223,61 @@ function services_profile_update_line_get_value($line, $answers)
     }
     return $value;
 }
+
+/*
+TESTING QUERY
+SELECT
+    submmitted.id submitted_entry
+    -- , submmitted.user_id submitted_user
+
+    -- , target.user_id target_user
+    , target.item_id target_entry
+    , target.field_id target_field
+    , target.meta_value target_answer
+
+    -- , left_logic.user_id logic_user
+    , left_logic.item_id left_logic_entry
+    , left_logic.field_id left_logic_field
+    , left_logic.meta_value left_logic_answer
+
+    -- , rigth_logic.user_id logic_user
+    , rigth_logic.item_id rigth_logic_entry
+    , rigth_logic.field_id rigth_logic_field
+    , rigth_logic.meta_value rigth_logic_answer
+FROM wp_frm_items submmitted
+
+LEFT JOIN (
+    SELECT
+        wp_frm_items.user_id
+        , item_id
+        , field_id
+        , meta_value
+    FROM wp_frm_item_metas
+    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
+    WHERE field_id IN (1084, 1085)
+) target ON target.user_id = submmitted.user_id
+
+LEFT JOIN (
+    SELECT
+        wp_frm_items.user_id
+        , item_id
+        , field_id
+        , meta_value
+    FROM wp_frm_item_metas
+    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
+    WHERE field_id IN (306)
+) left_logic ON left_logic.user_id = submmitted.user_id
+
+LEFT JOIN (
+    SELECT
+        wp_frm_items.user_id
+        , item_id
+        , field_id
+        , meta_value
+    FROM wp_frm_item_metas
+    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
+    WHERE field_id IN (383, 903)
+) rigth_logic ON rigth_logic.user_id = submmitted.user_id
+
+WHERE submmitted.id = 4013
+*/
