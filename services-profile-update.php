@@ -189,13 +189,25 @@ function services_profile_update_execute_line($entry_user, $line, $answers)
         if (is_null($value)) return true;
 
         global $wpdb;
-        $wpdb->query($wpdb->prepare("
-            UPDATE {$wpdb->prefix}frm_item_metas
-            RIGHT JOIN {$wpdb->prefix}frm_items ON {$wpdb->prefix}frm_items.id = {$wpdb->prefix}frm_item_metas.item_id
-            SET {$wpdb->prefix}frm_item_metas.meta_value = '{$value}'
-            WHERE {$wpdb->prefix}frm_items.user_id = %d
-            AND {$wpdb->prefix}frm_item_metas.field_id = %d
-        ", $entry_user, $target_field_id));
+        $target_answers = $wpdb->get_results($wpdb->prepare("
+            SELECT
+                user_target_entries.id item_id
+                , {$wpdb->prefix}frm_item_metas.id answer_id
+            FROM (
+                SELECT
+                    {$wpdb->prefix}frm_items.id
+                FROM {$wpdb->prefix}frm_items
+                RIGHT JOIN {$wpdb->prefix}frm_fields ON {$wpdb->prefix}frm_fields.form_id = {$wpdb->prefix}frm_items.form_id
+                WHERE {$wpdb->prefix}frm_fields.id = %d AND {$wpdb->prefix}frm_items.user_id = %d
+            ) user_target_entries
+            LEFT JOIN {$wpdb->prefix}frm_item_metas ON user_target_entries.id = {$wpdb->prefix}frm_item_metas.item_id AND {$wpdb->prefix}frm_item_metas.field_id = %d
+        ", $target_field_id, $entry_user, $target_field_id));
+        foreach ($target_answers as $target_answer) {
+            if (is_null($target_answer->answer_id)) $wpdb->insert("{$wpdb->prefix}frm_item_metas", [
+                'meta_value' => $value, 'field_id' => $target_field_id, 'item_id' => $target_answer->item_id
+            ], ['%s', '%d', '%d']);
+            else $wpdb->update("{$wpdb->prefix}frm_item_metas", ['meta_value' => $value], ['id' => $target_answer->answer_id], ['%s'], ['%d']);
+        }
     }
 }
 
@@ -231,7 +243,7 @@ function services_profile_update_line_get_value($line, $answers)
 TESTING QUERY
 SELECT
     submmitted.id submitted_entry
-    -- , submmitted.user_id submitted_user
+    , submmitted.user_id submitted_user
 
     -- , target.user_id target_user
     , target.item_id target_entry
@@ -241,11 +253,13 @@ SELECT
 
     -- , left_logic.user_id logic_user
     , left_logic.item_id left_logic_entry
+    , left_logic.answer_id left_logic_answer_id
     , left_logic.field_id left_logic_field
     , left_logic.meta_value left_logic_answer
 
-    -- , rigth_logic.user_id logic_user
+    -- -- , rigth_logic.user_id logic_user
     , rigth_logic.item_id rigth_logic_entry
+    , rigth_logic.answer_id rigth_logic_answer_id
     , rigth_logic.field_id rigth_logic_field
     , rigth_logic.meta_value rigth_logic_answer
 FROM wp_frm_items submmitted
@@ -259,12 +273,13 @@ LEFT JOIN (
         , meta_value
     FROM wp_frm_item_metas
     RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (1084, 1086)
+    WHERE field_id IN (1086)
 ) target ON target.user_id = submmitted.user_id
 
 LEFT JOIN (
     SELECT
         wp_frm_items.user_id
+        , wp_frm_item_metas.id answer_id
         , item_id
         , field_id
         , meta_value
@@ -276,12 +291,13 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT
         wp_frm_items.user_id
+        , wp_frm_item_metas.id answer_id
         , item_id
         , field_id
         , meta_value
     FROM wp_frm_item_metas
     RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (383, 903)
+    WHERE field_id IN (903)
 ) rigth_logic ON rigth_logic.user_id = submmitted.user_id
 
 WHERE submmitted.id = 4013
