@@ -242,14 +242,13 @@ function services_profile_update_line_get_value($line, $answers)
 /*
 TESTING QUERY
 SELECT
-    submmitted.id submitted_entry
-    , submmitted.user_id submitted_user
+    submitted.id submitted_entry
+    , submitted.user_id submitted_user
 
-    -- , target.user_id target_user
-    , target.item_id target_entry
-    , target.answer_id target_answer_id
-    , target.field_id target_field
-    , target.meta_value target_answer
+    , target_entry.item_id target_entry
+    , target_entry.id target_answer
+    , target_entry.field_id target_field
+    , target_entry.meta_value target_value
 
     -- , left_logic.user_id logic_user
     , left_logic.item_id left_logic_entry
@@ -262,7 +261,25 @@ SELECT
     , rigth_logic.answer_id rigth_logic_answer_id
     , rigth_logic.field_id rigth_logic_field
     , rigth_logic.meta_value rigth_logic_answer
-FROM wp_frm_items submmitted
+
+FROM wp_frm_items submitted
+
+LEFT JOIN (
+    SELECT
+        wp_frm_item_metas.item_id
+        , wp_frm_items.user_id
+        , wp_frm_item_metas.id
+        , wp_frm_item_metas.field_id
+        , wp_frm_item_metas.meta_value
+    FROM wp_frm_items
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 958
+    WHERE form_id = (
+        SELECT
+            form_id
+        FROM wp_frm_fields
+        WHERE id = 958
+    )
+) target_entry ON target_entry.user_id = submitted.user_id
 
 LEFT JOIN (
     SELECT
@@ -273,8 +290,8 @@ LEFT JOIN (
         , meta_value
     FROM wp_frm_item_metas
     RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (1086)
-) target ON target.user_id = submmitted.user_id
+    WHERE field_id IN (384)
+) left_logic ON left_logic.user_id = submitted.user_id
 
 LEFT JOIN (
     SELECT
@@ -285,20 +302,8 @@ LEFT JOIN (
         , meta_value
     FROM wp_frm_item_metas
     RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (306)
-) left_logic ON left_logic.user_id = submmitted.user_id
+    WHERE field_id IN (435)
+) rigth_logic ON rigth_logic.user_id = submitted.user_id
 
-LEFT JOIN (
-    SELECT
-        wp_frm_items.user_id
-        , wp_frm_item_metas.id answer_id
-        , item_id
-        , field_id
-        , meta_value
-    FROM wp_frm_item_metas
-    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (903)
-) rigth_logic ON rigth_logic.user_id = submmitted.user_id
-
-WHERE submmitted.id = 4013
+WHERE submitted.id = 5078
 */
