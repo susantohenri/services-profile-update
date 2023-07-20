@@ -128,9 +128,12 @@ function services_profile_update_validate_csv_line($line)
 {
     if ('' === $line['Trigger']) return false;
     if ('' === $line['Target']) return false;
-    $fields_conditions = explode(' equals ', $line['Conditions']);
-    if ('' === $fields_conditions[0]) return false;
-    if (isset($fields_conditions[1]) && '' === $fields_conditions[1]) return false;
+
+    if ('' !== $line['Conditions']) {
+        $fields_conditions = explode(' equals ', $line['Conditions']);
+        if ('' === $fields_conditions[0]) return false;
+        if (isset($fields_conditions[1]) && '' === $fields_conditions[1]) return false;
+    }
     return true;
 }
 
@@ -144,13 +147,16 @@ function services_profile_update_line_extract_fields($line)
 {
     $fields = [];
     $fields[] = substr($line['Target'], 1, -1);
-    if ('[' === $line['Value'][0] && ']' === $line['Value'][strlen($line['Value']) - 1]) {
+    if ('' !== $line['Value'] && '[' === $line['Value'][0] && ']' === $line['Value'][strlen($line['Value']) - 1]) {
         $fields[] = substr($line['Value'], 1, -1);
     }
-    $conditions = explode(' equals ', $line['Conditions']);
-    $fields[] = substr($conditions[0], 1, -1);
-    if ('[' === $conditions[1][0] && ']' === $conditions[1][strlen($conditions[1]) - 1]) {
-        $fields[] = substr($conditions[1], 1, -1);
+
+    if ('' !== $line['Conditions']) {
+        $conditions = explode(' equals ', $line['Conditions']);
+        $fields[] = substr($conditions[0], 1, -1);
+        if ('[' === $conditions[1][0] && ']' === $conditions[1][strlen($conditions[1]) - 1]) {
+            $fields[] = substr($conditions[1], 1, -1);
+        }
     }
     return $fields;
 }
@@ -173,14 +179,18 @@ function services_profile_update_collect_answers($user_id, $fields)
 
 function services_profile_update_execute_line($entry_user, $line, $answers)
 {
-    $conditions = explode(' equals ', $line['Conditions']);
-    $left_question = substr($conditions[0], 1, -1);
-    $right_is_field = '[' === $conditions[1][0];
-    $right_question = substr($conditions[1], 1, -1);
+    $matching_conditions = [];
+    if ('' === $line['Conditions']) $matching_conditions = [true];
+    else {
+        $conditions = explode(' equals ', $line['Conditions']);
+        $left_question = substr($conditions[0], 1, -1);
+        $right_is_field = '[' === $conditions[1][0];
+        $right_question = substr($conditions[1], 1, -1);
 
-    $left_side_answers = services_profile_update_collect_values($left_question, $answers);
-    $right_side_answers = $right_is_field ? services_profile_update_collect_values($right_question, $answers) : [$right_question];
-    $matching_conditions = array_intersect($left_side_answers, $right_side_answers);
+        $left_side_answers = services_profile_update_collect_values($left_question, $answers);
+        $right_side_answers = $right_is_field ? services_profile_update_collect_values($right_question, $answers) : [$right_question];
+        $matching_conditions = array_intersect($left_side_answers, $right_side_answers);
+    }
 
     $target_field_id = substr($line['Target'], 1, -1);
 
@@ -228,11 +238,12 @@ function services_profile_update_collect_values($question, $answers)
 function services_profile_update_line_get_value($line, $answers)
 {
     $value = $line['Value'];
-    if ('[' == $value[0]) {
-        $value_answers = array_values(array_filter($answers, function ($answer) use ($value) {
-            return $value == $answer->question;
+    if ('' !== $value && '[' == $value[0]) {
+        $field = substr($value, 1, -1);
+        $value_answers = array_values(array_filter($answers, function ($answer) use ($field) {
+            return $field == $answer->question;
         }));
-        if (empty($value_answer)) return null;
+        if (empty($value_answers)) return null;
         $value_answer = end($value_answers);
         $value = $value_answer->answer;
     }
@@ -307,3 +318,5 @@ LEFT JOIN (
 
 WHERE submitted.id = 5078
 */
+
+// henrisusanto: lanjut ke line 5
