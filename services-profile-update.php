@@ -252,22 +252,26 @@ function services_profile_update_line_get_value($line, $answers)
 
 /*
 TESTING QUERY
+
 SELECT
     submitted.id submitted_entry
     , submitted.user_id submitted_user
 
+    , target_entry.form_id
     , target_entry.item_id target_entry
     , target_entry.id target_answer
     , target_entry.field_id target_field
     , target_entry.meta_value target_value
 
     -- , left_logic.user_id logic_user
+    , left_logic.form_id
     , left_logic.item_id left_logic_entry
     , left_logic.answer_id left_logic_answer_id
     , left_logic.field_id left_logic_field
     , left_logic.meta_value left_logic_answer
 
-    -- -- , rigth_logic.user_id logic_user
+    -- -- -- , rigth_logic.user_id logic_user
+    , rigth_logic.form_id
     , rigth_logic.item_id rigth_logic_entry
     , rigth_logic.answer_id rigth_logic_answer_id
     , rigth_logic.field_id rigth_logic_field
@@ -279,44 +283,42 @@ LEFT JOIN (
     SELECT
         wp_frm_item_metas.item_id
         , wp_frm_items.user_id
+        , wp_frm_fields.form_id
         , wp_frm_item_metas.id
         , wp_frm_item_metas.field_id
         , wp_frm_item_metas.meta_value
     FROM wp_frm_items
-    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 958
-    WHERE form_id = (
-        SELECT
-            form_id
-        FROM wp_frm_fields
-        WHERE id = 958
-    )
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 844
+    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 844
 ) target_entry ON target_entry.user_id = submitted.user_id
 
 LEFT JOIN (
     SELECT
-        wp_frm_items.user_id
+        wp_frm_item_metas.item_id
+        , wp_frm_items.user_id
+        , wp_frm_fields.form_id
         , wp_frm_item_metas.id answer_id
-        , item_id
-        , field_id
-        , meta_value
-    FROM wp_frm_item_metas
-    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (384)
+        , wp_frm_item_metas.field_id
+        , wp_frm_item_metas.meta_value
+    FROM wp_frm_items
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 244
+    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 244
 ) left_logic ON left_logic.user_id = submitted.user_id
 
 LEFT JOIN (
     SELECT
-        wp_frm_items.user_id
+        wp_frm_item_metas.item_id
+        , wp_frm_items.user_id
+        , wp_frm_fields.form_id
         , wp_frm_item_metas.id answer_id
-        , item_id
-        , field_id
-        , meta_value
-    FROM wp_frm_item_metas
-    RIGHT JOIN wp_frm_items ON wp_frm_item_metas.item_id = wp_frm_items.id
-    WHERE field_id IN (435)
+        , wp_frm_item_metas.field_id
+        , wp_frm_item_metas.meta_value
+    FROM wp_frm_items
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 1874
+    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 1874
 ) rigth_logic ON rigth_logic.user_id = submitted.user_id
 
-WHERE submitted.id = 5078
+WHERE submitted.id = 6015
 */
 
 // henrisusanto: lanjut ke line 5
