@@ -257,21 +257,21 @@ SELECT
     submitted.id submitted_entry
     , submitted.user_id submitted_user
 
-    , target_entry.form_id
+    , target_entry.form_id target_form
     , target_entry.item_id target_entry
     , target_entry.id target_answer
     , target_entry.field_id target_field
     , target_entry.meta_value target_value
 
     -- , left_logic.user_id logic_user
-    , left_logic.form_id
+    , left_logic.form_id left_form
     , left_logic.item_id left_logic_entry
     , left_logic.answer_id left_logic_answer_id
     , left_logic.field_id left_logic_field
     , left_logic.meta_value left_logic_answer
 
     -- -- -- , rigth_logic.user_id logic_user
-    , rigth_logic.form_id
+    , rigth_logic.form_id right_form
     , rigth_logic.item_id rigth_logic_entry
     , rigth_logic.answer_id rigth_logic_answer_id
     , rigth_logic.field_id rigth_logic_field
@@ -288,8 +288,8 @@ LEFT JOIN (
         , wp_frm_item_metas.field_id
         , wp_frm_item_metas.meta_value
     FROM wp_frm_items
-    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 844
-    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 844
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 845
+    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 845
 ) target_entry ON target_entry.user_id = submitted.user_id
 
 LEFT JOIN (
@@ -301,8 +301,8 @@ LEFT JOIN (
         , wp_frm_item_metas.field_id
         , wp_frm_item_metas.meta_value
     FROM wp_frm_items
-    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 244
-    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 244
+    LEFT JOIN wp_frm_item_metas ON wp_frm_item_metas.item_id = wp_frm_items.id AND wp_frm_item_metas.field_id = 3963
+    RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 3963
 ) left_logic ON left_logic.user_id = submitted.user_id
 
 LEFT JOIN (
@@ -318,7 +318,5 @@ LEFT JOIN (
     RIGHT JOIN wp_frm_fields ON wp_frm_items.form_id = wp_frm_fields.form_id AND wp_frm_fields.id = 1874
 ) rigth_logic ON rigth_logic.user_id = submitted.user_id
 
-WHERE submitted.id = 6015
+WHERE submitted.id = 6126
 */
-
-// henrisusanto: lanjut ke line 5
